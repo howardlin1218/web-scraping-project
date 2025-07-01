@@ -4,6 +4,13 @@ from bs4 import BeautifulSoup
 from collections import defaultdict
 import re
 
+from datetime import datetime
+
+now = datetime.now()
+year = now.year 
+month = now.month
+day = now.day
+
 # list of websites to search from 
 website_urls = [
     "https://www.tomshardware.com/search",
@@ -18,13 +25,15 @@ website_urls = [
 
 # search terms 
 search_terms = [
-    "MSI Focus"
+    "Desktop", 
+    "Gaming Desktop",
+    "Pro Desktop"
 ]
 
 key_words_gaming = [
+    "MSI",
     "iBUYPOWER",
     "ASUS", 
-    "MSI",
     "ACER", 
     "HP", 
     "CYBERPOWER", 
@@ -33,8 +42,7 @@ key_words_gaming = [
     "Vision", 
     "Aegis", 
     "Infinite", 
-    "Razer", 
-    "2025"
+    "Razer"
 ]
 
 key_words_pro = [
@@ -50,19 +58,43 @@ key_words_pro = [
     "Pro", 
     "Microsoft Surface",
     "Apple", 
-    "Macbook",
-    "2025"
+    "Macbook"
 ]
 
+months = {
+    "january" : 1, 
+    "jan": 1,
+    "february": 2, 
+    "feb": 2,
+    "march": 3,
+    "mar": 3, 
+    "april": 4,
+    "apr": 4, 
+    "may": 5, 
+    "june": 6,
+    "jun": 6, 
+    "july": 7,
+    "jul": 7, 
+    "august": 8,
+    "aug": 8, 
+    "september": 9,
+    "sep": 9, 
+    "october": 10,
+    "oct": 10, 
+    "november": 11,
+    "nov": 11, 
+    "december": 12,
+    "dec": 12
+}
 headers = {"User-Agent": "Chrome/114.0.0.0 Safari/537.36"}
 
-pattern_gaming = r'\b(' + '|'.join(re.escape(k) for k in key_words_gaming) + r')(?:[\w\'\-]*)'
-pattern_pro = r'\b(' + '|'.join(re.escape(k) for k in key_words_pro) + r')(?:[\w\'\-]*)'
+pattern_gaming = r'\b(' + '|'.join(re.escape(k) for k in key_words_gaming) + r')\b'
+pattern_pro = r'\b(' + '|'.join(re.escape(k) for k in key_words_pro) + r')\b'
 
 pattern = [pattern_gaming, pattern_pro]
 
 # parse dates
-splitter = re.compile(r"[ /]")
+splitter = re.compile(r"[ /,]+")
 
 def match_keywords(article_text, term_index):
     if term_index == 1 or term_index == 2:
@@ -76,7 +108,7 @@ def match_keywords(article_text, term_index):
             return (list(set(list(match.lower() for match in matches_1) + list(match.lower() for match in matches_2))))
     return []
 
-def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms, article_limit=1, word_limit=500, filter_year=2024): 
+def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms, article_limit=1, word_limit=500, filter_year=year, filter_month=month, filter_day=day): 
     matched_article_metadata = defaultdict(list)
     for term in range(len(search_terms)):
         i = 0
@@ -109,7 +141,8 @@ def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms,
                     link = a_tag.get("href")
                     title = a_tag.get("aria-label")
                     publish_date = article.find("time", class_="date-with-prefix").get_text(strip=True)
-                    if int("20"+splitter.split(publish_date)[-1]) < filter_year:
+                    parsed_date = splitter.split(publish_date)
+                    if int("20"+parsed_date[-1]) < filter_year or months[parsed_date[1].lower()] < filter_month or int(parsed_date[0]) < filter_day:
                         continue
 
                     response = requests.get(link, headers=headers)
@@ -151,7 +184,7 @@ def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms,
     # figure out how to send these as notifications to emails, and how to save to database for future reference 
     # allow user lookup in the database 
 
-def search_pc_mag(website_url=website_urls[1], search_terms=search_terms, article_limit=1, word_limit=500, filter_year=2025):
+def search_pc_mag(website_url=website_urls[1], search_terms=search_terms, article_limit=1, word_limit=500, filter_year=year, filter_month=month, filter_day=day):
     matched_article_metadata = {}
     for term in range(len(search_terms)):
         i = 0
@@ -184,7 +217,8 @@ def search_pc_mag(website_url=website_urls[1], search_terms=search_terms, articl
                     link = "https://www.pcmag.com/"+a_tag.get("href")
                     title = a_tag.get_text(strip=True)
                     publish_date = article.find("span", attrs={"data-content-published-date": True}).get_text(strip=True)
-                    if int(splitter.split(publish_date)[-1]) < filter_year:
+                    parsed_date = splitter.split(publish_date)
+                    if int(parsed_date[-1]) < filter_year or int(parsed_date[0]) < filter_month or int(parsed_date[1]) < filter_day:
                         continue
                     # synopsis = article.find("p", class_="line-clamp-2").get_text(strip=True)
                     author = article.find_all("a",  attrs={"data-element": "author-name"})
@@ -232,7 +266,7 @@ def search_pc_mag(website_url=website_urls[1], search_terms=search_terms, articl
             pass
     return matched_article_metadata
 
-def search_the_pc_enthusiast(website_url=website_urls[2], search_terms=search_terms, article_limit=1, word_limit=500, filter_year=2025):
+def search_the_pc_enthusiast(website_url=website_urls[2], search_terms=search_terms, article_limit=1, word_limit=500, filter_year=year, filter_month=month, filter_day=day):
     matched_article_metadata = {}
     for term in range(len(search_terms)):
         i = 0
@@ -266,7 +300,8 @@ def search_the_pc_enthusiast(website_url=website_urls[2], search_terms=search_te
                     link = a_tag.get("href")
                     title = a_tag.get_text(strip=True)
                     publish_date = article.find("time", class_="published").get_text(strip=True)
-                    if int(splitter.split(publish_date)[-1]) < filter_year:
+                    parsed_date = splitter.split(publish_date)
+                    if int(parsed_date[-1]) < filter_year or months[parsed_date[0].lower()] < filter_month or int(parsed_date[1]) < filter_day:
                         continue
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
@@ -302,7 +337,7 @@ def search_the_pc_enthusiast(website_url=website_urls[2], search_terms=search_te
             print(f"Failed to fetch results for {search_terms[term]} (status code: {response.status_code})")
     return matched_article_metadata
 
-def search_hothardware(website_url=website_urls[3], search_terms=search_terms, article_limit=1, word_limit=500, filter_year=2025):
+def search_hothardware(website_url=website_urls[3], search_terms=search_terms, article_limit=1, word_limit=500, filter_year=year, filter_month=month, filter_day=day):
     matched_article_metadata = {}
     for term in range(len(search_terms)):
         i = 0
@@ -336,7 +371,8 @@ def search_hothardware(website_url=website_urls[3], search_terms=search_terms, a
                     title = title_link_tag.get_text(strip=True)
                 
                     publish_date = article.find("div", class_="cli-byline").get_text(strip=True).split('-')[-1].strip()
-                    if int(splitter.split(publish_date)[-1]) < filter_year:
+                    parsed_date = splitter.split(publish_date)
+                    if int(parsed_date[-1]) < filter_year or months[parsed_date[1].lower()] < filter_month or int(parsed_date[2]) < filter_day:
                         continue
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
@@ -369,7 +405,7 @@ def search_hothardware(website_url=website_urls[3], search_terms=search_terms, a
             print(f"Failed to fetch results for {search_terms[term]} (status code: {response.status_code})")
     return matched_article_metadata
 
-def search_pc_perspective(website_url=website_urls[4], search_terms=search_terms, article_limit=1, word_limit = 500, filter_year=2025):
+def search_pc_perspective(website_url=website_urls[4], search_terms=search_terms, article_limit=1, word_limit = 500, filter_year=year, filter_month=month, filter_day=day):
     matched_article_metadata = {}
     for term in range(len(search_terms)):
         i = 0
@@ -402,7 +438,8 @@ def search_pc_perspective(website_url=website_urls[4], search_terms=search_terms
                     link = a_tag.get("href")
                     title = a_tag.get_text(strip=True)
                     publish_date = article.find("span", class_="updated").get_text(strip=True)
-                    if int(splitter.split(publish_date)[-1]) < filter_year:
+                    parsed_date = splitter.split(publish_date)
+                    if int(parsed_date[-1]) < filter_year or months[parsed_date[0].lower()] < filter_month or int(parsed_date[1]) < filter_day:
                         continue
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
@@ -438,7 +475,7 @@ def search_pc_perspective(website_url=website_urls[4], search_terms=search_terms
             print(f"Failed to fetch results for {search_terms[term]} (status code: {response.status_code})")
     return matched_article_metadata
 
-def search_gamerant(website_url=website_urls[5], search_terms=search_terms, article_limit=1, word_limit=500, filter_year=2025):
+def search_gamerant(website_url=website_urls[5], search_terms=search_terms, article_limit=1, word_limit=500, filter_year=year, filter_month=month, filter_day=day):
     matched_article_metadata = {}
     for term in range(len(search_terms)):
         i = 0
@@ -471,7 +508,8 @@ def search_gamerant(website_url=website_urls[5], search_terms=search_terms, arti
                     link = "https://gamerant.com" + a_tag.get("href")
                     title = a_tag.get_text(strip=True)
                     publish_date = article.find("time", class_="display-card-date").get_text(strip=True)
-                    if int(splitter.split(publish_date)[-1]) < filter_year:
+                    parsed_date = splitter.split(publish_date)
+                    if int(parsed_date[-1]) < filter_year or months[parsed_date[0].lower()] < filter_month or int(parsed_date[1]) < filter_day:
                         continue
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
@@ -507,7 +545,7 @@ def search_gamerant(website_url=website_urls[5], search_terms=search_terms, arti
             print(f"Failed to fetch results for {search_terms[term]} (status code: {response.status_code})")
     return matched_article_metadata
 
-def search_windows_central(website_url=website_urls[6], search_terms=search_terms, article_limit=1, word_limit=500, filter_year=2025):
+def search_windows_central(website_url=website_urls[6], search_terms=search_terms, article_limit=1, word_limit=500, filter_year=year, filter_month=month, filter_day=day):
     matched_article_metadata = {}
     for term in range(len(search_terms)):
         i = 0
@@ -540,7 +578,8 @@ def search_windows_central(website_url=website_urls[6], search_terms=search_term
                     link = article.find("a", class_="article-link").get("href")
                     title = article.find("h3", class_="article-name").get_text(strip=True)
                     publish_date = article.find("time", class_="no-wrap relative-date date-with-prefix").get_text(strip=True)
-                    if int("20"+splitter.split(publish_date)[-1]) < filter_year:
+                    parsed_date = splitter.split(publish_date)
+                    if int("20"+parsed_date[-1]) < filter_year or months[parsed_date[1].lower()] < filter_month or int(parsed_date[0]) < filter_day:
                         continue
                     current_article_text = ""   
                     response = requests.get(link, headers=headers)
@@ -576,7 +615,7 @@ def search_windows_central(website_url=website_urls[6], search_terms=search_term
             print(f"Failed to fetch results for {search_terms[term]} (status code: {response.status_code})")
     return matched_article_metadata
 
-def search_tech_radar(website_url=website_urls[7], search_terms=search_terms, article_limit=1, word_limit=500, filter_year=2025):
+def search_tech_radar(website_url=website_urls[7], search_terms=search_terms, article_limit=1, word_limit=500, filter_year=year, filter_month=month, filter_day=day):
     matched_article_metadata = {}
     for term in range(len(search_terms)):
         i = 0
@@ -610,7 +649,8 @@ def search_tech_radar(website_url=website_urls[7], search_terms=search_terms, ar
                     link = article.find("a", class_="article-link").get("href")
                     title = article.find("h3", class_="article-name").get_text(strip=True)
                     publish_date = article.find("time", class_="no-wrap relative-date date-with-prefix").get_text(strip=True)
-                    if int("20"+splitter.split(publish_date)[-1]) < filter_year:
+                    parsed_date = splitter.split(publish_date)
+                    if int("20"+parsed_date[-1]) < filter_year or months[parsed_date[1].lower()] < filter_month or int(parsed_date[0]) < filter_day:
                         continue
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
@@ -655,11 +695,12 @@ search_functions = [search_toms_hardware,
                     search_windows_central,
                     search_tech_radar]
 
-def search_all_sites(website_urls=website_urls, search_terms=search_terms, article_limit=1, word_limit=2500, filter_year=2025):
+def search_all_sites(website_urls=website_urls, search_terms=search_terms, article_limit=1, word_limit=1000, filter_year=year, filter_month=month, filter_day=day, sites_to_search=[0,1,2,3,4,5,6,7]):
     i = 0
     return_list = {}
     for website_url in website_urls:
-        return_list[website_url] = search_functions[i](website_url, search_terms, article_limit, word_limit, filter_year)
+        if i in sites_to_search:
+            return_list[website_url] = search_functions[i](website_url, search_terms, article_limit, word_limit, filter_year, filter_month, filter_day)
         i += 1
         # site_data = search_functions[i](website_url, search_terms, article_limit, word_limit) # returns a dict, see below for structure
         # site_data = {"article link": ["article text", ["article keywords"], "article title", "article author(s)", "article publish date"], 
