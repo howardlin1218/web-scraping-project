@@ -86,10 +86,13 @@ months = {
     "december": 12,
     "dec": 12
 }
+
 headers = {"User-Agent": "Chrome/114.0.0.0 Safari/537.36"}
 
 pattern = ""
 def keywords_pattern(keywords):
+    if len(keywords) == 0:
+        return ""
     pattern = r'\b(' + '|'.join(re.escape(k) for k in keywords) + r')\b'
     return pattern
 
@@ -99,6 +102,8 @@ def keywords_pattern(keywords):
 splitter = re.compile(r"[ /,]+")
 
 def match_keywords(article_text, term_index):
+    if pattern == "":
+        return ["no keywords"]
     matches = re.findall(pattern, article_text, flags=re.IGNORECASE)
     if matches: 
         return list(set(match.lower() for match in matches))
@@ -108,7 +113,10 @@ def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms,
     matched_article_metadata = defaultdict(list)
     for term in range(len(search_terms)):
         i = 0
-        params = {"searchTerm": search_terms[term]}
+        params = {"searchTerm": search_terms[term],
+                  "articleType": "all",
+                  "sortBy": "publishedDate"
+                  }
 
         response = requests.get(website_url, params=params, headers=headers)
         #print("Search URL:", response.url)
@@ -692,7 +700,7 @@ search_functions = [search_toms_hardware,
                     search_windows_central,
                     search_tech_radar]
 
-def search_all_sites(website_urls=website_urls, search_terms=search_terms, article_limit=1, word_limit=5000, filter_year=year, filter_month=6, filter_day=30, sites_to_search=[0,1,2,3,4,5,6,7], keywords="gaming"):
+def search_all_sites(website_urls=website_urls, search_terms=search_terms, article_limit=1, word_limit=1000, filter_year=year, filter_month=month, filter_day=day, sites_to_search=[0], keywords=[]):
     global pattern 
     pattern = keywords_pattern(keywords)
     i = 0

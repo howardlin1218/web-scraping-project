@@ -7,8 +7,8 @@ import os
 
 # Import your existing modules
 try:
-    import automate_email # Import your email automation
-    import test  # Import your scraping logic
+    from automate_email import construct_message # Import your email automation
+    from test import search_all_sites  # Import your scraping logic
 except ImportError:
     print("Warning: Could not import some modules. Make sure database.py and automate_email.py exist.")
 
@@ -23,19 +23,29 @@ def search_site():
         
         # Extract search parameters
         websites = [int(x) for x in data.get('websites', ["0"])]
-        search_terms = data.get('searchTerms', '')
+        search_terms = [data.get('searchTerms', '')]
         limit = data.get('limit', 5)
         day = data.get('day', 15)
-        month = data.get('month', "June")
+        month = data.get('month', 6)
         year = data.get('year', 2025)
-        keywords = data.get('keywords', '').replace(" ", "").split(",")
+        keywords = data.get('keywords', [])
+        print(keywords, isinstance(keywords, str))
+        if keywords != "":
+            keywords = keywords.strip().replace(" ", "").split(",")
+        else: 
+            keywords = []
+        print(keywords, isinstance(keywords, list), type(keywords))
         # Log the search request
         print(f"Site search request: {search_terms} on {len(websites)} websites: {websites}")
-    
-        results_list = test.search_all_sites(search_terms=search_terms, article_limit=limit, filter_year=year, filter_month=month, filter_day=day, sites_to_search=websites, keywords=keywords)
-        return jsonify({"html": automate_email.construct_message(results_list=results_list)})
+        results_list = search_all_sites(search_terms=search_terms, article_limit=limit, filter_year=year, filter_month=month, filter_day=day, sites_to_search=websites, keywords=keywords)
+        print(results_list)
+        return jsonify({"status": "success", 
+                        "message": "returning json",
+                        "html": construct_message(results_list=results_list)
+                        }), 200
         
     except Exception as e:
+        print(str(e))
         return jsonify({
             'status': 'error',
             'message': str(e)

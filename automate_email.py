@@ -79,16 +79,16 @@ def convert_response_to_html_list_sentiment(bullet_list_response):
 <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
 \n{rows}</table>\n"""
 
-def construct_message(email_content=email_content, partial_email_html=partial_email_html, results_list=results_list):
+def construct_message(email_content=email_content, final_content_html=final_content_html, results_list=results_list):
     # construct the message 
-    if results_list is None: 
-        return
+    '''if results_list is None: 
+        return ""
     for website_url, website_articles in results_list.items():
         for article_url, metadata in website_articles.items(): 
             current_article_html = ""
             llm_response_summary = ""
             llm_response_sentiment = ""
-            
+            partial_email_html = ""
             completion_summary = client.chat.completions.create(
                 model="meta-llama/llama-4-scout-17b-16e-instruct",
                 messages=[
@@ -103,12 +103,12 @@ def construct_message(email_content=email_content, partial_email_html=partial_em
                 stream=True,
                 stop=None
             )
-
+            
             for chunk in completion_summary:
                 llm_response_summary += chunk.choices[0].delta.content or ""
                 email_content += chunk.choices[0].delta.content or ""
 
-                completion_analysis = client.chat.completions.create(
+            completion_analysis = client.chat.completions.create(
                 model="meta-llama/llama-4-scout-17b-16e-instruct",
                 messages=[
                 {
@@ -131,13 +131,30 @@ def construct_message(email_content=email_content, partial_email_html=partial_em
             current_article_html += convert_response_to_html_list_summary(llm_response_summary)
             current_article_html += convert_response_to_html_list_sentiment(llm_response_sentiment)
             current_article_html += "<hr style=\"border: 1px solid #ccc; margin: 30px 0;\">"
-        
+            
             # for database
             final_content_html.append({"website": website_urls[website_url], "title": metadata[2], "author": metadata[3], "published": metadata[4], "keywords": (", ".join(metadata[1]) if metadata[1] else ""), "url": article_url, "content": current_article_html})
 
             # full article list html - for email
             partial_email_html += current_article_html
-    return "<html>\n<body>\n" + partial_email_html + "\n</body></html>"
+            
+    return "<html>\n<body>\n" + partial_email_html + "\n</body>\n</html>"'''
+    '''return r"""
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
+<tr><td><strong>Title</strong></td><td>MSI unveils EdgeXpert MS-C931 desktop AI supercomputer powered by Nvidia DGX Spark</td></tr>
+<tr><td><strong>Author</strong></td><td>Stephen Warwick</td></tr>
+<tr><td><strong>Publish Date</strong></td><td>19 May 25</td></tr>
+<tr><td><strong>Keywords</strong></td><td>msi</td></tr>
+<tr><td><strong>Article Link</strong></td><td><a href="https://www.tomshardware.com/desktops/msi-unveils-edgexpert-ms-c931-desktop-ai-supercomputer-powered-by-nvidia-dgx-spark">https://www.tomshardware.com/desktops/msi-unveils-edgexpert-ms-c931-desktop-ai-supercomputer-powered-by-nvidia-dgx-spark</a></td></tr>
+</table>
+<ul>
+<li>The MSI EdgeXpert MS-C931 desktop AI supercomputer is powered by Nvidia's DGX Spark platform and features the Nvidia GB10 Grace Blackwell Superchip, capable of 1,000 AI TOPS FP4 performance.</li>
+<li>The system offers 128GB of unified LPDDR5x memory, ConnectX7 networking, and supports large language models, making it suitable for AI developers and researchers in fields like education, finance, and healthcare.</li>
+<li>The MSI EdgeXpert MS-C931 is available to pre-order, but pricing is not disclosed, and interested buyers need to contact MSI directly.</li>
+<li>The device is compact, weighing 1.2kg and measuring 151mm x 151mm x 52 mm, with connectivity features including 4x USB 3.2 Type C ports, a 10GbE RJ-45 connector, Wi-Fi 7, and Bluetooth 5.3.</li>
+<li>Storage configurations include 1 or 4TB of NVMe M.2 storage, and the system runs on Nvidia's DGX OS, capable of running up to 200-billion-parameter large language models, or up to 405-billion-parameter models when using two devices connected via Nvidia Connect X.</li>
+</ul>
+"""'''
 
 email_content_html = construct_message()
 '''
@@ -145,7 +162,8 @@ with open("summaries.html", "w", encoding="utf-8") as file:
         file.write(email_content_html)
 file.close()'''
 
-insert_to_supabase(final_content_html)
+def save_to_database(final_content_html=final_content_html):
+    insert_to_supabase(final_content_html)
 
 '''
 msg = MIMEMultipart("alternative")
