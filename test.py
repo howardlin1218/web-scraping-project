@@ -88,24 +88,20 @@ months = {
 }
 headers = {"User-Agent": "Chrome/114.0.0.0 Safari/537.36"}
 
-pattern_gaming = r'\b(' + '|'.join(re.escape(k) for k in key_words_gaming) + r')\b'
-pattern_pro = r'\b(' + '|'.join(re.escape(k) for k in key_words_pro) + r')\b'
+pattern = ""
+def keywords_pattern(keywords):
+    pattern = r'\b(' + '|'.join(re.escape(k) for k in keywords) + r')\b'
+    return pattern
 
-pattern = [pattern_gaming, pattern_pro]
+#pattern = [pattern_gaming, pattern_pro]
 
 # parse dates
 splitter = re.compile(r"[ /,]+")
 
 def match_keywords(article_text, term_index):
-    if term_index == 1 or term_index == 2:
-        matches = re.findall(pattern[term_index-1], article_text, flags=re.IGNORECASE)
-        if matches: 
-            return list(set(match.lower() for match in matches))
-    else:
-        matches_1 = re.findall(pattern[0], article_text, flags=re.IGNORECASE)
-        matches_2 = re.findall(pattern[1], article_text, flags=re.IGNORECASE)
-        if matches_1 or matches_2:
-            return (list(set(list(match.lower() for match in matches_1) + list(match.lower() for match in matches_2))))
+    matches = re.findall(pattern, article_text, flags=re.IGNORECASE)
+    if matches: 
+        return list(set(match.lower() for match in matches))
     return []
 
 def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms, article_limit=1, word_limit=500, filter_year=year, filter_month=month, filter_day=day): 
@@ -218,8 +214,9 @@ def search_pc_mag(website_url=website_urls[1], search_terms=search_terms, articl
                     title = a_tag.get_text(strip=True)
                     publish_date = article.find("span", attrs={"data-content-published-date": True}).get_text(strip=True)
                     parsed_date = splitter.split(publish_date)
-                    if int(parsed_date[-1]) < filter_year or int(parsed_date[0]) < filter_month or int(parsed_date[1]) < filter_day:
-                        continue
+                    if parsed_date[-1] != 'ago': 
+                        if int(parsed_date[-1]) < filter_year or int(parsed_date[0]) < filter_month or int(parsed_date[1]) < filter_day:
+                            continue
                     # synopsis = article.find("p", class_="line-clamp-2").get_text(strip=True)
                     author = article.find_all("a",  attrs={"data-element": "author-name"})
                     author_names = []
@@ -695,7 +692,9 @@ search_functions = [search_toms_hardware,
                     search_windows_central,
                     search_tech_radar]
 
-def search_all_sites(website_urls=website_urls, search_terms=search_terms, article_limit=1, word_limit=1000, filter_year=year, filter_month=month, filter_day=day, sites_to_search=[0,1,2,3,4,5,6,7]):
+def search_all_sites(website_urls=website_urls, search_terms=search_terms, article_limit=1, word_limit=5000, filter_year=year, filter_month=6, filter_day=30, sites_to_search=[0,1,2,3,4,5,6,7], keywords="gaming"):
+    global pattern 
+    pattern = keywords_pattern(keywords)
     i = 0
     return_list = {}
     for website_url in website_urls:
