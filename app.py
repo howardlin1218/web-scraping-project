@@ -4,7 +4,10 @@ import json
 from datetime import datetime
 import sys
 import os
-
+now = datetime.now()
+d_year = now.year 
+d_month = now.month
+d_day = now.day
 # Import your existing modules
 try:
     from automate_email import construct_message # Import your email automation
@@ -24,24 +27,30 @@ def search_site():
         # Extract search parameters
         websites = [int(x) for x in data.get('websites', ["0"])]
         search_terms = [data.get('searchTerms', '')]
-        limit = data.get('limit', 5)
-        day = data.get('day', 15)
-        month = data.get('month', 6)
-        year = data.get('year', 2025)
+        limit = data.get('limit', 3)
+        day = data.get('day', d_day)
+        month = data.get('month', d_month)
+        year = data.get('year', d_year)
         keywords = data.get('keywords', [])
-        print(keywords, isinstance(keywords, str))
+        
         if keywords != "":
             keywords = keywords.strip().replace(" ", "").split(",")
         else: 
             keywords = []
-        print(keywords, isinstance(keywords, list), type(keywords))
+        
         # Log the search request
-        print(f"Site search request: {search_terms} on {len(websites)} websites: {websites}")
+        print(f"Site search request: {search_terms} on {len(websites)} websites: {websites}, limit:{limit}")
         results_list = search_all_sites(search_terms=search_terms, article_limit=limit, filter_year=year, filter_month=month, filter_day=day, sites_to_search=websites, keywords=keywords)
-        print(results_list)
+        for website_url, website_articles in results_list.items():
+            print(f"Website: {website_url}")
+            for article_url, metadata in website_articles.items(): 
+                print(f"Article URL: {article_url}")
+                
+        return_str = construct_message(results_list=results_list)
+        print(return_str)
         return jsonify({"status": "success", 
                         "message": "returning json",
-                        "html": construct_message(results_list=results_list)
+                        "html": return_str
                         }), 200
         
     except Exception as e:

@@ -60,7 +60,7 @@ function displayResults(searchType: string, response: ApiResponse): void {
     resultDiv.style.borderRadius = '4px';
     
     if (response.status === 'success') {
-        resultDiv.style.backgroundColor = '#d4edda';
+        //resultDiv.style.backgroundColor = '#d4edda';
         if (response.html && response.html !== 'no body') {
             resultDiv.innerHTML = `<div style="border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 10px;"><strong>${timestamp} - ${searchType}:</strong></div>${response.html}`;
             console.log('Adding successful result with HTML content');
@@ -88,6 +88,15 @@ function displayResults(searchType: string, response: ApiResponse): void {
     console.log('Appending result. Total children before:', activityLog.children.length);
     activityLog.appendChild(resultDiv);
     console.log('Total children after:', activityLog.children.length);
+
+    // Scroll to the Articles Found section with smooth animation
+    setTimeout(() => {
+        articlesCard.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+        });
+        console.log('Scrolled to Articles Found section');
+    }, 100); // Small delay to ensure the content is rendered
 }
 
 // Function to get values from "Search a site" form
@@ -272,7 +281,14 @@ document.addEventListener('DOMContentLoaded', function(): void {
             }
         });
     }
-
+    const saveBtn = document.getElementsByClassName('save-btn')
+    if (saveBtn) {
+        for (let i = 0; i < saveBtn.length; i++) {
+            saveBtn[i].addEventListener('click', () => {
+                alert('saved!');
+            });
+        }
+    }
     // Form submission handler for site search
     const quickActionsForm = document.getElementById('quickActionsForm') as HTMLFormElement;
     if (quickActionsForm) {

@@ -81,14 +81,14 @@ def convert_response_to_html_list_sentiment(bullet_list_response):
 
 def construct_message(email_content=email_content, final_content_html=final_content_html, results_list=results_list):
     # construct the message 
-    '''if results_list is None: 
+    partial_email_html = ""
+    if results_list is None: 
         return ""
     for website_url, website_articles in results_list.items():
         for article_url, metadata in website_articles.items(): 
-            current_article_html = ""
+            current_article_html = "<button class='btn save-btn'>Save</button>\n"
             llm_response_summary = ""
             llm_response_sentiment = ""
-            partial_email_html = ""
             completion_summary = client.chat.completions.create(
                 model="meta-llama/llama-4-scout-17b-16e-instruct",
                 messages=[
@@ -138,7 +138,7 @@ def construct_message(email_content=email_content, final_content_html=final_cont
             # full article list html - for email
             partial_email_html += current_article_html
             
-    return "<html>\n<body>\n" + partial_email_html + "\n</body>\n</html>"'''
+    return "<html>\n<body>\n" + partial_email_html + "\n</body>\n</html>"
     '''return r"""
 <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
 <tr><td><strong>Title</strong></td><td>MSI unveils EdgeXpert MS-C931 desktop AI supercomputer powered by Nvidia DGX Spark</td></tr>
