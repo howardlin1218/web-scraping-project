@@ -15,3 +15,9 @@ def insert_to_supabase(articles):
         supabase.table("articles").upsert(articles, on_conflict="url").execute()
     except Exception as e:
         print("Unexpected error inserting into Supabase:", e)
+
+def save_single_article(article):
+    try:
+        supabase.table("articles").upsert([article], on_conflict="url").execute()
+    except Exception as e:
+        print("Unexpected error inserting into Supabase:", e)

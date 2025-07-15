@@ -21,6 +21,7 @@ results_list = None
 email_content = ""
 partial_email_html = ""
 final_content_html = []
+json_dict = {}
 website_urls = {"https://www.tomshardware.com/search": "Tom's Hardware",
                 "https://www.pcmag.com/search/results": "PC Mag",
                 "https://thepcenthusiast.com/": "The PC Enthusiast",
@@ -33,17 +34,17 @@ website_urls = {"https://www.tomshardware.com/search": "Tom's Hardware",
 
 def convert_metadata_to_html(website_url, title, author, publish_date, keywords, link):
     rows = ""
-    rows += f"<tr><td><strong>Website</strong></td><td>{website_urls[website_url]}</td></tr>\n"
-    rows += f"<tr><td><strong>Article Title</strong></td><td>{title}</td></tr>\n"
-    rows += f"<tr><td><strong>Author</strong></td><td>{author}</td></tr>\n"
-    rows += f"<tr><td><strong>Publish Date</strong></td><td>{publish_date}</td></tr>\n"
-    rows += f"<tr><td><strong>Keywords</strong></td><td>{', '.join(keywords) if keywords else ''}</td></tr>\n"
-    link = f'<a href="{link}">{link}</a>'
-    rows += f"<tr><td><strong>Article Link</strong></td><td>{link}</td></tr>\n"
+    rows += f"<tr><th>Website</th><td>{website_urls[website_url]}</td></tr>\n"
+    rows += f"<tr><th>Title</th><td>{title}</td></tr>\n"
+    rows += f"<tr><th>Author</th><td>{author}</td></tr>\n"
+    rows += f"<tr><th>Publish Date</th><td>{publish_date}</td></tr>\n"
+    rows += f"<tr><th>Keywords</th><td>{', '.join(keywords) if keywords else ''}</td></tr>\n"
+    link = f'<a href="{link}" target="_blank">{link}</a>'
+    rows += f"<tr><th>Article Link</th><td>{link}</td></tr>\n"
 
     return f"""
-<h2>Article Information</h2>\n
-<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
+<h2>📰 Article Information</h2>\n
+<table>
 \n{rows}</table>\n"""
      
 def convert_response_to_html_list_summary(bullet_list_response):
@@ -55,7 +56,7 @@ def convert_response_to_html_list_summary(bullet_list_response):
             content = line[1:].strip()
             list_items.append(f"<li>{content}</li>")
     html = "<ul>\n" + "\n".join(list_items) + "\n</ul>\n"
-    return "<h2>Article Summary</h2>\n"+html
+    return "<h2>📌 Summary</h2>\n"+html
 
 def convert_response_to_html_list_sentiment(bullet_list_response):
     rows = ""
@@ -66,27 +67,26 @@ def convert_response_to_html_list_sentiment(bullet_list_response):
             continue
         if line[0] == "*":
             if "positive" in line[1:].lower():
-                rows += "<tr><td><strong>Positive</strong></td><td>\n<ul>"
+                rows += "<div class='sentiment-block positive'>\n<h3>Positive</h3>\n<ul>\n"
             if "neutral" in line[1:].lower():
-                rows += "</ul>\n</td></tr>\n<tr><td><strong>Neutral</strong></td><td>\n<ul>"
+                rows += "</ul>\n</div>\n<div class='sentiment-block neutral'>\n<h3>Neutral</h3>\n<ul>\n"
             if "negative" in line[1:].lower():
-                rows += "</ul>\n</td></tr>\n<tr><td><strong>Negative</strong></td><td>\n<ul>"
+                rows += "</ul>\n</div>\n<div class='sentiment-block negative'>\n<h3>Negative</h3>\n<ul>\n"
             continue
         rows += f"<li>{line[1:].strip()}</li>\n"
-    rows += "</ul>\n</td></tr>\n"
+    rows += "</ul>\n</div>\n</div>\n"
     return f"""
-<h2>Sentiment Analysis</h2>\n
-<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
-\n{rows}</table>\n"""
+<h2>🧠 Sentiment Analysis</h2>\n
+<div class="sentiment-section">\n
+\n{rows}\n"""
 
 def construct_message(email_content=email_content, final_content_html=final_content_html, results_list=results_list):
     # construct the message 
-    partial_email_html = ""
+    '''partial_email_html = ""
     if results_list is None: 
         return ""
     for website_url, website_articles in results_list.items():
         for article_url, metadata in website_articles.items(): 
-            current_article_html = "<button class='btn save-btn'>Save</button>\n"
             llm_response_summary = ""
             llm_response_sentiment = ""
             completion_summary = client.chat.completions.create(
@@ -127,58 +127,107 @@ def construct_message(email_content=email_content, final_content_html=final_cont
                 llm_response_sentiment += chunk.choices[0].delta.content or ""
 
             # current article html - for database
+            current_article_html = f"<input type='checkbox' class='article-checkbox'/>\n<button class='btn save-btn' id='{article_url}'>Save</button>\n<section class='article-analysis'>\n"
             current_article_html += convert_metadata_to_html(website_url, metadata[2], metadata[3], metadata[4], metadata[1], article_url)
             current_article_html += convert_response_to_html_list_summary(llm_response_summary)
             current_article_html += convert_response_to_html_list_sentiment(llm_response_sentiment)
-            current_article_html += "<hr style=\"border: 1px solid #ccc; margin: 30px 0;\">"
+            current_article_html += "</section>\n<hr style=\"border: 1px solid #ccc; margin: 30px 0;\">"
             
             # for database
-            final_content_html.append({"website": website_urls[website_url], "title": metadata[2], "author": metadata[3], "published": metadata[4], "keywords": (", ".join(metadata[1]) if metadata[1] else ""), "url": article_url, "content": current_article_html})
+            json_dict[article_url] = {"website": website_urls[website_url], "title": metadata[2], "author": metadata[3], "published": metadata[4], "keywords": (", ".join(metadata[1]) if metadata[1] else ""), "url": article_url, "content": current_article_html}
+            final_content_html.append(json_dict[article_url])
 
             # full article list html - for email
             partial_email_html += current_article_html
             
-    return "<html>\n<body>\n" + partial_email_html + "\n</body>\n</html>"
-    '''return r"""
-<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
-<tr><td><strong>Title</strong></td><td>MSI unveils EdgeXpert MS-C931 desktop AI supercomputer powered by Nvidia DGX Spark</td></tr>
-<tr><td><strong>Author</strong></td><td>Stephen Warwick</td></tr>
-<tr><td><strong>Publish Date</strong></td><td>19 May 25</td></tr>
-<tr><td><strong>Keywords</strong></td><td>msi</td></tr>
-<tr><td><strong>Article Link</strong></td><td><a href="https://www.tomshardware.com/desktops/msi-unveils-edgexpert-ms-c931-desktop-ai-supercomputer-powered-by-nvidia-dgx-spark">https://www.tomshardware.com/desktops/msi-unveils-edgexpert-ms-c931-desktop-ai-supercomputer-powered-by-nvidia-dgx-spark</a></td></tr>
-</table>
-<ul>
-<li>The MSI EdgeXpert MS-C931 desktop AI supercomputer is powered by Nvidia's DGX Spark platform and features the Nvidia GB10 Grace Blackwell Superchip, capable of 1,000 AI TOPS FP4 performance.</li>
-<li>The system offers 128GB of unified LPDDR5x memory, ConnectX7 networking, and supports large language models, making it suitable for AI developers and researchers in fields like education, finance, and healthcare.</li>
-<li>The MSI EdgeXpert MS-C931 is available to pre-order, but pricing is not disclosed, and interested buyers need to contact MSI directly.</li>
-<li>The device is compact, weighing 1.2kg and measuring 151mm x 151mm x 52 mm, with connectivity features including 4x USB 3.2 Type C ports, a 10GbE RJ-45 connector, Wi-Fi 7, and Bluetooth 5.3.</li>
-<li>Storage configurations include 1 or 4TB of NVMe M.2 storage, and the system runs on Nvidia's DGX OS, capable of running up to 200-billion-parameter large language models, or up to 405-billion-parameter models when using two devices connected via Nvidia Connect X.</li>
-</ul>
-"""'''
+    #return partial_email_html'''
+    return r"""
+<div style="text-align: left;">
+<button style="display: inline-block, width: 100%;" class='btn save-btn' id='https://www.tomshardware.com/pc-components/gpus/zotac-breathes-new-life-into-leftover-mxm-rtx-5000-ada-gpus-in-china-at-usd4-700-a-pop-pcie-adapter-brings-mobile-ada-lovelace-gpu-to-desktops'>Save</button>
+<button>press me</button>
+<input style="display: inline-block, width: 100%;" type="checkbox" id="save-article-1" name="savedArticles" class="article-checkbox"/>
+</div>
+<section class='article-analysis'>
+<h2>📰 Article Information</h2>
 
-email_content_html = construct_message()
-'''
+<table>
+
+<tr><th>Website</th><td>Tom's Hardware</td></tr>
+<tr><th>Title</th><td>Zotac breathes new life into leftover MXM RTX 5000 Ada GPUs in China at $4,700 a pop — PCIe adapter brings mobile Ada Lovelace GPU to desktops</td></tr>
+<tr><th>Author</th><td>Zhiye Liu</td></tr>
+<tr><th>Publish Date</th><td>14 July 25</td></tr>
+<tr><th>Keywords</th><td>no keywords</td></tr>
+<tr><th>Article Link</th><td><a href="https://www.tomshardware.com/pc-components/gpus/zotac-breathes-new-life-into-leftover-mxm-rtx-5000-ada-gpus-in-china-at-usd4-700-a-pop-pcie-adapter-brings-mobile-ada-lovelace-gpu-to-desktops" target="_blank">https://www.tomshardware.com/pc-components/gpus/zotac-breathes-new-life-into-leftover-mxm-rtx-5000-ada-gpus-in-china-at-usd4-700-a-pop-pcie-adapter-brings-mobile-ada-lovelace-gpu-to-desktops</a></td></tr>
+</table>
+<h2>📌 Summary</h2>
+<ul>
+<li>The article discusses the Zotac MXM RTX5000 Ada graphics card, which is a mobile variant of the RTX5000 Ada GPU.</li>
+<li>The MXM RTX5000 Ada has 24% fewer CUDA cores and half the memory capacity of the desktop RTX5000 Ada card, with a TDP of 120W compared to 250W.</li>
+<li>Zotac offers a separate MXM to PCIe x16 adapter for $181, which allows users to transform the MXM RTX5000 Ada into a desktop graphics card.</li>
+<li>The adapter supports up to 200W power delivery and features a 16-pin (12VHPWR) power connector, similar to Nvidia's higher-end graphics cards like the GeForce RTX 5090.</li>
+<li>The MXM RTX5000 Ada is priced at approximately $4,743.66, which is 15% more than the desktop RTX5000 Ada, available for $4,124 in the US.</li>
+<li>Compared to the desktop RTX5000 Ada, the MXM RTX5000 Ada offers diminished performance levels, making it less desirable for most users.</li>
+<li>The target audience for the MXM RTX5000 Ada appears to be professional or workstation users looking to upgrade their laptops that accept the MXM form factor.</li>
+</ul>
+
+<h2>🧠 Sentiment Analysis</h2>
+
+<div class="sentiment-section">
+
+
+<div class='sentiment-block positive'>
+<h3>Positive</h3>
+<ul>
+<li>The MXM to PCIe x16 adapter is a useful accessory for users who want to swap the MXM RTX5000 Ada between their laptops and desktops.</li>
+<li>For professional or workstation users looking to upgrade their laptops that accept the MXM form factor, there may be interest in the MXM RTX5000 Ada.</li>
+<li>In desperate times, however, a GPU is a GPU, and it's interesting to see Zotac breathe life into silicon that might otherwise sit unused.</li>
+</ul>
+</div>
+<div class='sentiment-block neutral'>
+<h3>Neutral</h3>
+<ul>
+<li>Nvidia introduced the RTX Pro6000 (Blackwell) graphics card targeted at professionals and data centers a few months ago, and partners are beginning to sell off stockpiles of older RTX5000 Ada GPUs.</li>
+<li>The MXM (Mobile PCI Express Module) form factor is predominantly utilized in laptops and mobile workstations.</li>
+<li>The adapter utilizes the 16-pin (12VHPWR) power connector, which is common on Nvidia's latest higher-end graphics cards.</li>
+</ul>
+</div>
+<div class='sentiment-block negative'>
+<h3>Negative</h3>
+<ul>
+<li>The MXM RTX5000 Ada version possesses 24% fewer CUDA cores and half the memory capacity of the desktop RTX5000 Ada card.</li>
+<li>Zotac's MXM RTX5000 Ada is priced at approximately $4,743.66, which is quite high considering the RTX5000 Ada itself is not sold for that amount.</li>
+<li>By choosing the MXM RTX5000 Ada, you're paying 15% extra for a less powerful version.</li>
+<li>For most users, however, choosing a desktop RTX5000 Ada from the start is the more cost-effective and higher-performance option.</li>
+</ul>
+</div>
+</div>
+
+</section>
+<hr style="border: 1px solid #ccc; margin: 30px 0;">
+"""
+
+'''results_list = test.search_all_sites(search_terms=["desktop"], article_limit=1, filter_year=2024, filter_month=6, filter_day=1, sites_to_search=[0], keywords=[])
+email_content_html = construct_message(results_list=results_list)
+
 with open("summaries.html", "w", encoding="utf-8") as file:
         file.write(email_content_html)
 file.close()'''
 
-def save_to_database(final_content_html=final_content_html):
-    insert_to_supabase(final_content_html)
+'''def save_to_database(final_content_html=final_content_html):
+    insert_to_supabase(final_content_html)'''
 
-'''
-msg = MIMEMultipart("alternative")
-msg['Subject'] = "Daily Summary"
-msg['From'] = "howlin1218@gmail.com"
-msg['To'] = "howardlin@msi.com"
-msg.attach(MIMEText(email_content_html, "html"))
+def send_email(email_content_html):
+    msg = MIMEMultipart("alternative")
+    msg['Subject'] = "Daily Summary"
+    msg['From'] = "howlin1218@gmail.com"
+    msg['To'] = "howlin1218@gmail.com"
+    msg.attach(MIMEText(email_content_html, "html"))
 
-# Connect using TLS
-with smtplib.SMTP("smtp.gmail.com", 587) as smtp:
-    smtp.ehlo()           # Identify ourselves to the SMTP server
-    smtp.starttls()       # Start TLS encryption
-    smtp.ehlo()           # Re-identify after starting TLS (optional but good practice)
-    smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-    smtp.send_message(msg)
-
-print("email successfully sent!")
-'''
+    # Connect using TLS
+    with smtplib.SMTP("smtp.gmail.com", 587) as smtp:
+        smtp.ehlo()           # Identify ourselves to the SMTP server
+        smtp.starttls()       # Start TLS encryption
+        smtp.ehlo()           # Re-identify after starting TLS (optional but good practice)
+        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        smtp.send_message(msg)
+    print("email successfully sent!")

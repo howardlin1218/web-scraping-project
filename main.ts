@@ -1,3 +1,8 @@
+const now = new Date();
+const n_year = now.getFullYear();
+const n_month = now.getMonth()+1;
+const n_day = now.getDate();
+
 // TypeScript interfaces for type safety
 interface SearchValues {
     websites: string[];
@@ -12,13 +17,31 @@ interface SearchValues {
 interface ApiResponse {
     status: 'success' | 'error';
     message: string;
-    data?: any;
-    articles?: any[];
-    html: string;
+    html?: string;
 }
 
 // API Configuration
 const API_BASE_URL = 'http://127.0.0.1:5000/api';
+// Function to make API requests
+async function makeApiRequest_save(endpoint: string, data: string): Promise<ApiResponse> {
+    const url = `${API_BASE_URL}${endpoint}`;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain'
+            },
+            body: data
+        });
+        return await response.json();
+    } catch (error) {
+        return {
+            status: 'error',
+            message: 'Network error or server unavailable',
+            html: 'no body'
+        };
+    }
+}
 
 // Function to make API requests
 async function makeApiRequest(endpoint: string, data: SearchValues): Promise<ApiResponse> {
@@ -86,7 +109,7 @@ function displayResults(searchType: string, response: ApiResponse): void {
     
     // Append new result (don't clear existing content)
     console.log('Appending result. Total children before:', activityLog.children.length);
-    activityLog.appendChild(resultDiv);
+    activityLog.insertBefore(resultDiv, activityLog.firstChild);
     console.log('Total children after:', activityLog.children.length);
 
     // Scroll to the Articles Found section with smooth animation
@@ -109,9 +132,9 @@ function getSiteSearchValues(): SearchValues {
         websites: websites || ["0"],
         searchTerms: (document.getElementById('search') as HTMLInputElement)?.value || "MSI Gaming",
         limit: Number((document.getElementById('amount') as HTMLInputElement)?.value) || 1,
-        day: Number((document.getElementById('day') as HTMLSelectElement)?.value) || 15,
-        month: Number((document.getElementById('month') as HTMLSelectElement)?.value) || 6,
-        year: Number((document.getElementById('year') as HTMLSelectElement)?.value) || 2025,
+        day: Number((document.getElementById('day') as HTMLSelectElement)?.value) || n_day,
+        month: Number((document.getElementById('month') as HTMLSelectElement)?.value) || n_month,
+        year: Number((document.getElementById('year') as HTMLSelectElement)?.value) || n_year,
         keywords: (document.getElementById('keywords') as HTMLInputElement)?.value || ""
     };
 }
@@ -281,14 +304,7 @@ document.addEventListener('DOMContentLoaded', function(): void {
             }
         });
     }
-    const saveBtn = document.getElementsByClassName('save-btn')
-    if (saveBtn) {
-        for (let i = 0; i < saveBtn.length; i++) {
-            saveBtn[i].addEventListener('click', () => {
-                alert('saved!');
-            });
-        }
-    }
+
     // Form submission handler for site search
     const quickActionsForm = document.getElementById('quickActionsForm') as HTMLFormElement;
     if (quickActionsForm) {
@@ -320,9 +336,9 @@ document.addEventListener('DOMContentLoaded', function(): void {
                 console.log('Making API request with values:', values);
                 const response = await makeApiRequest('/search-site', values);
                 console.log('Received response:', response);
-                displayResults('Site Search', response);
                 if (response.status === 'success') {
                     alert(`Success! ${response.message}`);
+                    displayResults('Site Search', response);
                 } else {
                     alert(`Error: ${response.message}`);
                 }
@@ -386,4 +402,37 @@ document.addEventListener('DOMContentLoaded', function(): void {
             }
         });
     }
+});
+
+document.addEventListener('click', async (event) => {
+  const target = event.target as HTMLButtonElement;
+
+  if (target.classList.contains('save-btn')) {
+    event.preventDefault();
+
+    const id = target.id;
+    console.log("article id (url): ", id);
+    
+    const originalText = target.textContent;
+    target.textContent = 'Saving...';
+    target.disabled = true;
+    
+    try {
+        const response = await makeApiRequest_save('/save-to-database', id);
+        console.log('Received reponse: ', response);
+        if (response.status === 'success') {
+            alert("Sucessfully saved");
+        } else {
+            alert(`Error: ${response.message}`);
+        }
+    } catch (error) {
+        console.error('Search failed:', error);
+        alert('Save failed. Please try again.');
+    } finally {
+        // Restore button state
+        target.textContent = originalText;
+        target.disabled = false;
+    }
+  }
+    
 });

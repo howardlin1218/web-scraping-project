@@ -101,7 +101,7 @@ def keywords_pattern(keywords):
 # parse dates
 splitter = re.compile(r"[ /,]+")
 
-def match_keywords(article_text, term_index):
+def match_keywords(article_text):
     if pattern == "":
         return ["no keywords"]
     matches = re.findall(pattern, article_text, flags=re.IGNORECASE)
@@ -146,9 +146,16 @@ def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms,
                     title = a_tag.get("aria-label")
                     publish_date = article.find("time", class_="date-with-prefix").get_text(strip=True)
                     parsed_date = splitter.split(publish_date)
-                    if int("20"+parsed_date[-1]) < filter_year or months[parsed_date[1].lower()] < filter_month or int(parsed_date[0]) < filter_day:
-                        continue
-
+                    if parsed_date[-1] != 'ago': 
+                        if int("20"+parsed_date[-1]) < filter_year:
+                            continue
+                        if int("20"+parsed_date[-1]) == filter_year:
+                            if months[parsed_date[1].lower()] < filter_month:
+                                continue
+                        if int(parsed_date[-1]) == filter_year:
+                            if months[parsed_date[1].lower()] == filter_month:
+                                if int(parsed_date[0]) < filter_day:
+                                    continue
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
                         opened_article = BeautifulSoup(response.text, "html.parser")
@@ -158,8 +165,7 @@ def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms,
                             current_article_text += (article_paragraph.get_text(strip=True) + ' ')
                         if len(current_article_text.lower().split()) > word_limit:
                             continue
-                        term_index = term
-                        matched = match_keywords(current_article_text, term_index)
+                        matched = match_keywords(current_article_text)
                         if len(matched) != 0:
                             matched_article_metadata[link] = [current_article_text, 
                                                               matched, 
@@ -223,8 +229,15 @@ def search_pc_mag(website_url=website_urls[1], search_terms=search_terms, articl
                     publish_date = article.find("span", attrs={"data-content-published-date": True}).get_text(strip=True)
                     parsed_date = splitter.split(publish_date)
                     if parsed_date[-1] != 'ago': 
-                        if int(parsed_date[-1]) < filter_year or int(parsed_date[0]) < filter_month or int(parsed_date[1]) < filter_day:
+                        if int(parsed_date[-1]) < filter_year:
                             continue
+                        if int(parsed_date[-1]) == filter_year:
+                            if int(parsed_date[0]) < filter_month:
+                                continue
+                        if int(parsed_date[-1]) == filter_year:
+                            if int(parsed_date[0]) == filter_month:
+                                if int(parsed_date[1]) < filter_day:
+                                    continue
                     # synopsis = article.find("p", class_="line-clamp-2").get_text(strip=True)
                     author = article.find_all("a",  attrs={"data-element": "author-name"})
                     author_names = []
@@ -249,8 +262,7 @@ def search_pc_mag(website_url=website_urls[1], search_terms=search_terms, articl
                             current_article_text += (article_paragraph.get_text(strip=True) + ' ')
                         if len(current_article_text.lower().split()) > word_limit:
                             continue
-                        term_index = term
-                        matched = match_keywords(current_article_text, term_index)
+                        matched = match_keywords(current_article_text)
                         if len(matched) != 0:
                             matched_article_metadata[link] = [current_article_text, 
                                                               matched, 
@@ -306,8 +318,16 @@ def search_the_pc_enthusiast(website_url=website_urls[2], search_terms=search_te
                     title = a_tag.get_text(strip=True)
                     publish_date = article.find("time", class_="published").get_text(strip=True)
                     parsed_date = splitter.split(publish_date)
-                    if int(parsed_date[-1]) < filter_year or months[parsed_date[0].lower()] < filter_month or int(parsed_date[1]) < filter_day:
-                        continue
+                    if parsed_date[-1] != 'ago': 
+                        if int(parsed_date[-1]) < filter_year:
+                            continue
+                        if int(parsed_date[-1]) == filter_year:
+                            if months[parsed_date[0].lower()] < filter_month:
+                                continue
+                        if int(parsed_date[-1]) == filter_year:
+                            if months[parsed_date[0].lower()] == filter_month:
+                                if int(parsed_date[1]) < filter_day:
+                                    continue
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -321,8 +341,7 @@ def search_the_pc_enthusiast(website_url=website_urls[2], search_terms=search_te
                             current_article_text += (article_paragraph.get_text(strip=True) + ' ')
                         if len(current_article_text.lower().split()) > word_limit:
                             continue
-                        term_index = term
-                        matched = match_keywords(current_article_text, term_index)
+                        matched = match_keywords(current_article_text)
                         if len(matched) != 0:
                             matched_article_metadata[link] = [current_article_text,
                                                         matched,
@@ -370,15 +389,22 @@ def search_hothardware(website_url=website_urls[3], search_terms=search_terms, a
             at_least_one_article = False
             for article in articles:  
                 if i < article_limit:
-                    author = article.find("b", class_=False, id=False).get_text(strip=True)
+                    author = article.find("div", class_="cli-byline").get_text(strip=True).split('-')[0].strip()[3:]
                     title_link_tag = article.find("a", class_="black p-name u-url")
                     link = "https://hothardware.com" + title_link_tag.get("href")
                     title = title_link_tag.get_text(strip=True)
-                
                     publish_date = article.find("div", class_="cli-byline").get_text(strip=True).split('-')[-1].strip()
                     parsed_date = splitter.split(publish_date)
-                    if int(parsed_date[-1]) < filter_year or months[parsed_date[1].lower()] < filter_month or int(parsed_date[2]) < filter_day:
-                        continue
+                    if parsed_date[-1] != 'ago': 
+                        if int(parsed_date[-1]) < filter_year:
+                            continue
+                        if int(parsed_date[-1]) == filter_year:
+                            if months[parsed_date[1].lower()] < filter_month:
+                                continue
+                        if int(parsed_date[-1]) == filter_year:
+                            if months[parsed_date[1].lower()] == filter_month:
+                                if int(parsed_date[2]) < filter_day:
+                                    continue
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -389,8 +415,7 @@ def search_hothardware(website_url=website_urls[3], search_terms=search_terms, a
                             break
                         if len(current_article_text.lower().split()) > word_limit:
                             continue
-                        term_index = term
-                        matched = match_keywords(current_article_text, term_index)
+                        matched = match_keywords(current_article_text)
                         if len(matched) != 0:
                             matched_article_metadata[link] = [current_article_text, 
                                                         matched, 
@@ -444,8 +469,16 @@ def search_pc_perspective(website_url=website_urls[4], search_terms=search_terms
                     title = a_tag.get_text(strip=True)
                     publish_date = article.find("span", class_="updated").get_text(strip=True)
                     parsed_date = splitter.split(publish_date)
-                    if int(parsed_date[-1]) < filter_year or months[parsed_date[0].lower()] < filter_month or int(parsed_date[1]) < filter_day:
-                        continue
+                    if parsed_date[-1] != 'ago': 
+                        if int(parsed_date[-1]) < filter_year:
+                            continue
+                        if int(parsed_date[-1]) == filter_year:
+                            if months[parsed_date[0].lower()] < filter_month:
+                                continue
+                        if int(parsed_date[-1]) == filter_year:
+                            if months[parsed_date[0].lower()] == filter_month:
+                                if int(parsed_date[1]) < filter_day:
+                                    continue
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -459,8 +492,7 @@ def search_pc_perspective(website_url=website_urls[4], search_terms=search_terms
                             current_article_text += (article_paragraph.get_text(strip=True) + ' ')
                         if len(current_article_text.lower().split()) > word_limit:
                             continue
-                        term_index = term
-                        matched = match_keywords(current_article_text, term_index)
+                        matched = match_keywords(current_article_text)
                         if len(matched) != 0:
                             matched_article_metadata[link] = [current_article_text, 
                                                         matched, 
@@ -514,8 +546,16 @@ def search_gamerant(website_url=website_urls[5], search_terms=search_terms, arti
                     title = a_tag.get_text(strip=True)
                     publish_date = article.find("time", class_="display-card-date").get_text(strip=True)
                     parsed_date = splitter.split(publish_date)
-                    if int(parsed_date[-1]) < filter_year or months[parsed_date[0].lower()] < filter_month or int(parsed_date[1]) < filter_day:
-                        continue
+                    if parsed_date[-1] != 'ago': 
+                        if int(parsed_date[-1]) < filter_year:
+                            continue
+                        if int(parsed_date[-1]) == filter_year:
+                            if months[parsed_date[0].lower()] < filter_month:
+                                continue
+                        if int(parsed_date[-1]) == filter_year:
+                            if months[parsed_date[0].lower()] == filter_month:
+                                if int(parsed_date[1]) < filter_day:
+                                    continue
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -529,8 +569,7 @@ def search_gamerant(website_url=website_urls[5], search_terms=search_terms, arti
                             current_article_text += (article_paragraph.get_text(strip=True) + ' ')
                         if len(current_article_text.lower().split()) > word_limit:
                             continue
-                        term_index = term
-                        matched = match_keywords(current_article_text, term_index)
+                        matched = match_keywords(current_article_text)
                         if len(matched) != 0:
                             matched_article_metadata[link] = [current_article_text, 
                                                         matched, 
@@ -584,8 +623,16 @@ def search_windows_central(website_url=website_urls[6], search_terms=search_term
                     title = article.find("h3", class_="article-name").get_text(strip=True)
                     publish_date = article.find("time", class_="no-wrap relative-date date-with-prefix").get_text(strip=True)
                     parsed_date = splitter.split(publish_date)
-                    if int("20"+parsed_date[-1]) < filter_year or months[parsed_date[1].lower()] < filter_month or int(parsed_date[0]) < filter_day:
-                        continue
+                    if parsed_date[-1] != 'ago': 
+                        if int("20" + parsed_date[-1]) < filter_year:
+                            continue
+                        if int("20" + parsed_date[-1]) == filter_year:
+                            if months[parsed_date[1].lower()] < filter_month:
+                                continue
+                        if int("20" + parsed_date[-1]) == filter_year:
+                            if months[parsed_date[1].lower()] == filter_month:
+                                if int(parsed_date[0]) < filter_day:
+                                    continue
                     current_article_text = ""   
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -599,8 +646,7 @@ def search_windows_central(website_url=website_urls[6], search_terms=search_term
                             current_article_text += (article_paragraph.get_text(strip=True) + ' ')
                         if len(current_article_text.lower().split()) > word_limit:
                             continue
-                        term_index = term
-                        matched = match_keywords(current_article_text, term_index)
+                        matched = match_keywords(current_article_text)
                         if len(matched) != 0:
                             matched_article_metadata[link] = [current_article_text, 
                                                         matched, 
@@ -655,8 +701,16 @@ def search_tech_radar(website_url=website_urls[7], search_terms=search_terms, ar
                     title = article.find("h3", class_="article-name").get_text(strip=True)
                     publish_date = article.find("time", class_="no-wrap relative-date date-with-prefix").get_text(strip=True)
                     parsed_date = splitter.split(publish_date)
-                    if int("20"+parsed_date[-1]) < filter_year or months[parsed_date[1].lower()] < filter_month or int(parsed_date[0]) < filter_day:
-                        continue
+                    if parsed_date[-1] != 'ago': 
+                        if int("20"+parsed_date[-1]) < filter_year:
+                            continue
+                        if int("20"+parsed_date[-1]) == filter_year:
+                            if months[parsed_date[1].lower()] < filter_month:
+                                continue
+                        if int(parsed_date[-1]) == filter_year:
+                            if months[parsed_date[1].lower()] == filter_month:
+                                if int(parsed_date[0]) < filter_day:
+                                    continue
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -670,8 +724,7 @@ def search_tech_radar(website_url=website_urls[7], search_terms=search_terms, ar
                             current_article_text += (article_paragraph.get_text(strip=True) + ' ')
                         if len(current_article_text.lower().split()) > word_limit:
                             continue
-                        term_index = term
-                        matched = match_keywords(current_article_text, term_index)
+                        matched = match_keywords(current_article_text)
                         if len(matched) != 0:
                             matched_article_metadata[link] = [current_article_text, 
                                                         matched, 

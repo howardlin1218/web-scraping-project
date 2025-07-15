@@ -10,14 +10,31 @@ d_month = now.month
 d_day = now.day
 # Import your existing modules
 try:
-    from automate_email import construct_message # Import your email automation
+    from automate_email import construct_message, json_dict # Import your email automation
     from test import search_all_sites  # Import your scraping logic
+    from database import save_single_article
 except ImportError:
     print("Warning: Could not import some modules. Make sure database.py and automate_email.py exist.")
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend communication
 
+@app.route('/api/save-to-database', methods=['POST'])
+def save_to_database():
+    try:
+        article_id = request.data.decode("utf-8")
+        save_single_article(json_dict[article_id])
+
+        return jsonify({"status": "success", 
+                        "message": "returning json"
+                        }), 200
+    except Exception as e:
+        print(str(e))
+        return jsonify({
+            'status': 'saving error',
+            'message': str(e)
+        }), 500
+    
 @app.route('/api/search-site', methods=['POST'])
 def search_site():
     """Handle site search requests from frontend"""
@@ -27,10 +44,10 @@ def search_site():
         # Extract search parameters
         websites = [int(x) for x in data.get('websites', ["0"])]
         search_terms = [data.get('searchTerms', '')]
-        limit = data.get('limit', 3)
-        day = data.get('day', d_day)
-        month = data.get('month', d_month)
-        year = data.get('year', d_year)
+        limit = data.get('limit')
+        day = data.get('day')
+        month = data.get('month')
+        year = data.get('year')
         keywords = data.get('keywords', [])
         
         if keywords != "":
@@ -41,13 +58,8 @@ def search_site():
         # Log the search request
         print(f"Site search request: {search_terms} on {len(websites)} websites: {websites}, limit:{limit}")
         results_list = search_all_sites(search_terms=search_terms, article_limit=limit, filter_year=year, filter_month=month, filter_day=day, sites_to_search=websites, keywords=keywords)
-        for website_url, website_articles in results_list.items():
-            print(f"Website: {website_url}")
-            for article_url, metadata in website_articles.items(): 
-                print(f"Article URL: {article_url}")
                 
-        return_str = construct_message(results_list=results_list)
-        print(return_str)
+        return_str= construct_message(results_list=results_list)
         return jsonify({"status": "success", 
                         "message": "returning json",
                         "html": return_str

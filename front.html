@@ -151,6 +151,49 @@
         .dropdown-arrow.open {
             transform: rotate(180deg);
         }
+
+        /* Optional styling to match previous design */
+        .article-analysis {
+            font-family: Arial, sans-serif;
+            padding: 1rem;
+            background-color: #f9f9f9;
+        }
+        .article-analysis table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            background-color: #fff;
+        }
+        .article-analysis th, td {
+            border: 1px solid #ccc;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .article-analysis th {
+            background-color: #f0f0f0;
+        }
+        .article-analysis ul {
+            background-color: #fff;
+            padding: 1rem 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .sentiment-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .sentiment-block {
+            background-color: #fff;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #ccc; 
+        }
+        .sentiment-block.positive { border-left: 5px solid green; }
+        .sentiment-block.negative { border-left: 5px solid red; }
+        .sentiment-block.neutral  { border-left: 5px solid gray; }
+        .sentiment-block h3 { margin-top: 0; }
     </style>
 </head>
 <body>
