@@ -39,7 +39,7 @@
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        
+
         .btn {
             display: inline-block;
             background: #007bff;
@@ -55,6 +55,40 @@
         
         .btn:hover {
             background: #0056b3;
+        }
+
+        #saveArticlesBtn {
+            display: inline-block;
+            background: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px; 
+            padding: 5px 10px;
+        }
+        
+        #saveArticlesBtn:hover {
+            background: #0056b3;
+        }
+        
+        #clearArticlesBtn {
+            display: inline-block;
+            background: #dc3545;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px; 
+            padding: 5px 10px;
+        }
+
+        #clearArticlesBtn:hover {
+            background: #c40303;
         }
         
         .form-group {
@@ -485,7 +519,10 @@
         <div class="card" id="articles-card" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h2>Articles Found</h2>
-                <button type="button" class="btn" id="clearArticlesBtn" style="background: #dc3545; font-size: 14px; padding: 5px 10px;">Clear Articles</button>
+                <div style="display: flex; width: fit-content; gap: 10px;">
+                    <button type="button" id="clearArticlesBtn" >Clear All</button>
+                    <button type="button" id="saveArticlesBtn">Save All</button>
+                </div>
             </div>
             <div id="activity-log">
                 <p>No articles found.</p>

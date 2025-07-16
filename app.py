@@ -12,7 +12,7 @@ d_day = now.day
 try:
     from automate_email import construct_message, json_dict # Import your email automation
     from test import search_all_sites  # Import your scraping logic
-    from database import save_single_article
+    from database import insert_to_supabase
 except ImportError:
     print("Warning: Could not import some modules. Make sure database.py and automate_email.py exist.")
 
@@ -22,11 +22,13 @@ CORS(app)  # Enable CORS for frontend communication
 @app.route('/api/save-to-database', methods=['POST'])
 def save_to_database():
     try:
-        article_id = request.data.decode("utf-8")
-        save_single_article(json_dict[article_id])
-
+        list_of_json_data = []
+        article_ids = json.loads(request.data.decode("utf-8"))
+        for article_id in article_ids:
+            list_of_json_data.append(json_dict[article_id])
+        insert_to_supabase(list_of_json_data)
         return jsonify({"status": "success", 
-                        "message": "returning json"
+                        "message": "saved successfully to database"
                         }), 200
     except Exception as e:
         print(str(e))

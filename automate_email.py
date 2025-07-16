@@ -82,7 +82,7 @@ def convert_response_to_html_list_sentiment(bullet_list_response):
 
 def construct_message(email_content=email_content, final_content_html=final_content_html, results_list=results_list):
     # construct the message 
-    '''partial_email_html = ""
+    partial_email_html = ""
     if results_list is None: 
         return ""
     for website_url, website_articles in results_list.items():
@@ -127,7 +127,7 @@ def construct_message(email_content=email_content, final_content_html=final_cont
                 llm_response_sentiment += chunk.choices[0].delta.content or ""
 
             # current article html - for database
-            current_article_html = f"<input type='checkbox' class='article-checkbox'/>\n<button class='btn save-btn' id='{article_url}'>Save</button>\n<section class='article-analysis'>\n"
+            current_article_html = f"<section class='article-analysis'>\n<input value='{article_url}' style='width: auto; transform: scale(1.5);' type='checkbox' name='articleCheckBox' />\n"
             current_article_html += convert_metadata_to_html(website_url, metadata[2], metadata[3], metadata[4], metadata[1], article_url)
             current_article_html += convert_response_to_html_list_summary(llm_response_summary)
             current_article_html += convert_response_to_html_list_sentiment(llm_response_sentiment)
@@ -140,13 +140,11 @@ def construct_message(email_content=email_content, final_content_html=final_cont
             # full article list html - for email
             partial_email_html += current_article_html
             
-    #return partial_email_html'''
-    return r"""
+    return partial_email_html
+    '''return r"""
 <div style="text-align: left;">
-<button style="display: inline-block, width: 100%;" class='btn save-btn' id='https://www.tomshardware.com/pc-components/gpus/zotac-breathes-new-life-into-leftover-mxm-rtx-5000-ada-gpus-in-china-at-usd4-700-a-pop-pcie-adapter-brings-mobile-ada-lovelace-gpu-to-desktops'>Save</button>
-<button>press me</button>
-<input style="display: inline-block, width: 100%;" type="checkbox" id="save-article-1" name="savedArticles" class="article-checkbox"/>
-</div>
+<input value='https://www.tomshardware.com/pc-components/gpus/zotac-breathes-new-life-into-leftover-mxm-rtx-5000-ada-gpus-in-china-at-usd4-700-a-pop-pcie-adapter-brings-mobile-ada-lovelace-gpu-to-desktops' style='width: auto; transform: scale(1.5);' type="checkbox" name='articleCheckBox'/>
+
 <section class='article-analysis'>
 <h2>📰 Article Information</h2>
 
@@ -204,7 +202,7 @@ def construct_message(email_content=email_content, final_content_html=final_cont
 
 </section>
 <hr style="border: 1px solid #ccc; margin: 30px 0;">
-"""
+"""'''
 
 '''results_list = test.search_all_sites(search_terms=["desktop"], article_limit=1, filter_year=2024, filter_month=6, filter_day=1, sites_to_search=[0], keywords=[])
 email_content_html = construct_message(results_list=results_list)

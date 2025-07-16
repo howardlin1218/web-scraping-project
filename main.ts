@@ -23,15 +23,15 @@ interface ApiResponse {
 // API Configuration
 const API_BASE_URL = 'http://127.0.0.1:5000/api';
 // Function to make API requests
-async function makeApiRequest_save(endpoint: string, data: string): Promise<ApiResponse> {
+async function makeApiRequest_save(endpoint: string, data: string[]): Promise<ApiResponse> {
     const url = `${API_BASE_URL}${endpoint}`;
     try {
         const response = await fetch(url, {
             method: 'POST',
             headers: {
-                'Content-Type': 'text/plain'
+                'Content-Type': 'application/json'
             },
-            body: data
+            body: JSON.stringify(data)
         });
         return await response.json();
     } catch (error) {
@@ -121,6 +121,41 @@ function displayResults(searchType: string, response: ApiResponse): void {
         console.log('Scrolled to Articles Found section');
     }, 100); // Small delay to ensure the content is rendered
 }
+// function to get unchecked articles
+function getUncheckedArticles(): string[] {
+    const allCheckboxes = document.querySelectorAll('input[name="articleCheckBox"]') as NodeListOf<HTMLInputElement>;
+    const unchecked = Array.from(allCheckboxes).filter(checkbox => !checkbox.checked).map(checkbox => checkbox.value);
+    
+    return unchecked
+}
+// Function to get checked articles 
+function getCheckedArticles(): string[] {
+    const articleCheckboxes = document.querySelectorAll('input[name="articleCheckBox"]:checked') as NodeListOf<HTMLInputElement>;
+    const articles = Array.from(articleCheckboxes).map(checkbox => checkbox.value);
+
+    return articles
+}
+
+function clearCheckboxes(): void {
+    const checkboxes = document.querySelectorAll<HTMLInputElement>('input[name="articleCheckBox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+}
+
+function clearArticles(): void {
+  const container = document.getElementById("activity-log");
+  if (!container) return;
+
+  const sections = container.querySelectorAll("section");
+
+  sections.forEach(section => {
+    const checkbox = section.querySelector('input[name="articleCheckBox"]') as HTMLInputElement | null;
+    if (checkbox?.checked) {
+      (section as HTMLElement).style.display = "none";
+    }
+  });
+}
 
 // Function to get values from "Search a site" form
 function getSiteSearchValues(): SearchValues {
@@ -197,6 +232,34 @@ document.addEventListener('DOMContentLoaded', function(): void {
         websiteDropdownContent.addEventListener('click', function(e: Event): void {
             e.stopPropagation();
         });
+    }
+
+    // update button text for save and clear when articles are selected 
+    const clearButtonTextContent = document.getElementById("clearArticlesBtn") as HTMLButtonElement;
+    const saveButtonTextContent = document.getElementById("saveArticlesBtn") as HTMLButtonElement;
+    console.log("outside change buttons");
+    if (clearButtonTextContent && saveButtonTextContent) {
+        const updateArticlesButton = () => {
+            const checkedBoxes = document.querySelectorAll('input[name="articleCheckBox"]:checked');
+            const count = checkedBoxes.length;
+            if (count == 0) {
+                clearButtonTextContent.textContent = "Clear All";
+                saveButtonTextContent.textContent = "Save All";
+            } else {
+                clearButtonTextContent.textContent = `Clear ${count} Articles`;
+                saveButtonTextContent.textContent = `Save ${count} Articles`;
+            }
+            };
+
+        // Add change listeners to checkboxes
+        document.addEventListener("change", (event => {
+            const target = event.target as HTMLElement;
+            if (target.matches('input[name="articleCheckBox"]')) {
+                updateArticlesButton();
+            }
+        }));
+    } else {
+        console.log("not inside change button");
     }
 
     // Dropdown functionality for database search
@@ -299,10 +362,53 @@ document.addEventListener('DOMContentLoaded', function(): void {
             const activityLog = document.getElementById('activity-log');
             const articlesCard = document.getElementById('articles-card');
             if (activityLog && articlesCard) {
-                activityLog.innerHTML = '<p>No articles found.</p>';
-                articlesCard.style.display = 'none';
+                clearArticles();
+                clearCheckboxes();
             }
         });
+        // Restore button state
+        clearButtonTextContent.textContent = "Clear All";
+        saveButtonTextContent.textContent = "Save All";
+    }
+
+    // Save Articles button functionality
+    const saveArticlesBtn = document.getElementById('saveArticlesBtn') as HTMLButtonElement;
+    if (saveArticlesBtn) {
+        saveArticlesBtn.addEventListener('click', async function(e: Event): Promise<void> {
+            let articleCheckboxes: string[] = getCheckedArticles();
+            console.log('Saving article urls: ', articleCheckboxes);
+            e.preventDefault();
+            
+            // save all articles
+            if (articleCheckboxes.length == 0) {
+                articleCheckboxes = getUncheckedArticles();
+            } 
+
+            const originalText = saveArticlesBtn.textContent;
+            saveArticlesBtn.textContent = 'Saving...';
+            saveArticlesBtn.disabled = true;
+
+            try {
+                const response = await makeApiRequest_save('/save-to-database', articleCheckboxes);
+                console.log('Received reponse: ', response);
+                if (response.status === 'success') {
+                    alert("Sucessfully saved");
+                    clearCheckboxes();
+                } else {
+                    alert(`Error: ${response.message}`);
+                }
+            } catch (error) {
+                console.error('Search failed:', error);
+                alert('Save failed. Please try again.');
+            } finally {
+            // Restore button state
+                saveArticlesBtn.textContent = originalText;
+                saveArticlesBtn.disabled = false;
+            }
+
+            clearButtonTextContent.textContent = "Clear All";
+            saveButtonTextContent.textContent = "Save All";
+            }); 
     }
 
     // Form submission handler for site search
@@ -404,10 +510,10 @@ document.addEventListener('DOMContentLoaded', function(): void {
     }
 });
 
-document.addEventListener('click', async (event) => {
+/*document.addEventListener('click', async (event) => {
   const target = event.target as HTMLButtonElement;
 
-  if (target.classList.contains('save-btn')) {
+  if (target.id.includes('saveArticlesBtn')) {
     event.preventDefault();
 
     const id = target.id;
@@ -435,4 +541,4 @@ document.addEventListener('click', async (event) => {
     }
   }
     
-});
+}); */

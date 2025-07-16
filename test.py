@@ -152,7 +152,7 @@ def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms,
                         if int("20"+parsed_date[-1]) == filter_year:
                             if months[parsed_date[1].lower()] < filter_month:
                                 continue
-                        if int(parsed_date[-1]) == filter_year:
+                        if int("20"+parsed_date[-1]) == filter_year:
                             if months[parsed_date[1].lower()] == filter_month:
                                 if int(parsed_date[0]) < filter_day:
                                     continue
@@ -754,6 +754,7 @@ search_functions = [search_toms_hardware,
                     search_tech_radar]
 
 def search_all_sites(website_urls=website_urls, search_terms=search_terms, article_limit=1, word_limit=2500, filter_year=year, filter_month=month, filter_day=day, sites_to_search=[0], keywords=[]):
+    print("backend passing in: ",filter_month, filter_day, filter_year)
     global pattern 
     pattern = keywords_pattern(keywords)
     i = 0
