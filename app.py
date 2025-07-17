@@ -10,7 +10,7 @@ d_month = now.month
 d_day = now.day
 # Import your existing modules
 try:
-    from automate_email import construct_message, json_dict # Import your email automation
+    from automate_email import construct_message, json_dict, send_email, email_dict # Import your email automation
     from test import search_all_sites  # Import your scraping logic
     from database import insert_to_supabase
 except ImportError:
@@ -19,11 +19,33 @@ except ImportError:
 app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend communication
 
+@app.route('/api/email-to-user', methods=['POST'])
+def email_to_user():
+    try:
+        email_html_content = ""
+        payload = json.loads(request.data.decode("utf-8"))
+        article_ids = payload.get("data")
+        email_address = payload.get("email_address")
+        print(payload, article_ids, email_address)
+        for article_id in article_ids:
+            email_html_content += email_dict[article_id]
+        send_email(email_html_content, email_address)
+        return jsonify({"status": "success", 
+                        "message": "email successfully sent"
+                        }), 200
+    except Exception as e:
+        print(str(e))
+        return jsonify({
+            'status': 'saving error',
+            'message': str(e)
+        }), 500
+    
 @app.route('/api/save-to-database', methods=['POST'])
 def save_to_database():
     try:
         list_of_json_data = []
-        article_ids = json.loads(request.data.decode("utf-8"))
+        payload = request.get_json()
+        article_ids = payload.get("data")
         for article_id in article_ids:
             list_of_json_data.append(json_dict[article_id])
         insert_to_supabase(list_of_json_data)
@@ -61,7 +83,7 @@ def search_site():
         print(f"Site search request: {search_terms} on {len(websites)} websites: {websites}, limit:{limit}")
         results_list = search_all_sites(search_terms=search_terms, article_limit=limit, filter_year=year, filter_month=month, filter_day=day, sites_to_search=websites, keywords=keywords)
                 
-        return_str= construct_message(results_list=results_list)
+        return_str = construct_message(results_list=results_list)
         return jsonify({"status": "success", 
                         "message": "returning json",
                         "html": return_str

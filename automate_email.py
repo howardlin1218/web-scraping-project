@@ -22,6 +22,7 @@ email_content = ""
 partial_email_html = ""
 final_content_html = []
 json_dict = {}
+email_dict = {}
 website_urls = {"https://www.tomshardware.com/search": "Tom's Hardware",
                 "https://www.pcmag.com/search/results": "PC Mag",
                 "https://thepcenthusiast.com/": "The PC Enthusiast",
@@ -80,7 +81,7 @@ def convert_response_to_html_list_sentiment(bullet_list_response):
 <div class="sentiment-section">\n
 \n{rows}\n"""
 
-def construct_message(email_content=email_content, final_content_html=final_content_html, results_list=results_list):
+def construct_message(email_content=email_content, results_list=results_list):
     # construct the message 
     partial_email_html = ""
     if results_list is None: 
@@ -126,26 +127,88 @@ def construct_message(email_content=email_content, final_content_html=final_cont
             for chunk in completion_analysis:
                 llm_response_sentiment += chunk.choices[0].delta.content or ""
 
-            # current article html - for database
-            current_article_html = f"<section class='article-analysis'>\n<input value='{article_url}' style='width: auto; transform: scale(1.5);' type='checkbox' name='articleCheckBox' />\n"
+            # current article html - returned
+            current_article_html = ""
             current_article_html += convert_metadata_to_html(website_url, metadata[2], metadata[3], metadata[4], metadata[1], article_url)
             current_article_html += convert_response_to_html_list_summary(llm_response_summary)
             current_article_html += convert_response_to_html_list_sentiment(llm_response_sentiment)
-            current_article_html += "</section>\n<hr style=\"border: 1px solid #ccc; margin: 30px 0;\">"
+            
+            # for email 
+            email_html = "<div class='article-container' style='margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;'>\n<section class='article-analysis'>\n" + current_article_html + "</section>\n</div>\n"
+            email_dict[article_url] = email_html
+
+            # for frontend
+            current_article_html = f"<div class='article-container' style='margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;'>\n<section class='article-analysis'>\n<input value='{article_url}' style='width: auto; transform: scale(1.5);' type='checkbox' name='articleCheckBox' />\n" + current_article_html+ "</section>\n</div>\n"
             
             # for database
             json_dict[article_url] = {"website": website_urls[website_url], "title": metadata[2], "author": metadata[3], "published": metadata[4], "keywords": (", ".join(metadata[1]) if metadata[1] else ""), "url": article_url, "content": current_article_html}
-            final_content_html.append(json_dict[article_url])
 
             # full article list html - for email
             partial_email_html += current_article_html
             
     return partial_email_html
     '''return r"""
-<div style="text-align: left;">
+<section class='article-analysis'>
 <input value='https://www.tomshardware.com/pc-components/gpus/zotac-breathes-new-life-into-leftover-mxm-rtx-5000-ada-gpus-in-china-at-usd4-700-a-pop-pcie-adapter-brings-mobile-ada-lovelace-gpu-to-desktops' style='width: auto; transform: scale(1.5);' type="checkbox" name='articleCheckBox'/>
+<h2>📰 Article Information</h2>
+
+<table>
+
+<tr><th>Website</th><td>Tom's Hardware</td></tr>
+<tr><th>Title</th><td>Zotac breathes new life into leftover MXM RTX 5000 Ada GPUs in China at $4,700 a pop — PCIe adapter brings mobile Ada Lovelace GPU to desktops</td></tr>
+<tr><th>Author</th><td>Zhiye Liu</td></tr>
+<tr><th>Publish Date</th><td>14 July 25</td></tr>
+<tr><th>Keywords</th><td>no keywords</td></tr>
+<tr><th>Article Link</th><td><a href="https://www.tomshardware.com/pc-components/gpus/zotac-breathes-new-life-into-leftover-mxm-rtx-5000-ada-gpus-in-china-at-usd4-700-a-pop-pcie-adapter-brings-mobile-ada-lovelace-gpu-to-desktops" target="_blank">https://www.tomshardware.com/pc-components/gpus/zotac-breathes-new-life-into-leftover-mxm-rtx-5000-ada-gpus-in-china-at-usd4-700-a-pop-pcie-adapter-brings-mobile-ada-lovelace-gpu-to-desktops</a></td></tr>
+</table>
+<h2>📌 Summary</h2>
+<ul>
+<li>The article discusses the Zotac MXM RTX5000 Ada graphics card, which is a mobile variant of the RTX5000 Ada GPU.</li>
+<li>The MXM RTX5000 Ada has 24% fewer CUDA cores and half the memory capacity of the desktop RTX5000 Ada card, with a TDP of 120W compared to 250W.</li>
+<li>Zotac offers a separate MXM to PCIe x16 adapter for $181, which allows users to transform the MXM RTX5000 Ada into a desktop graphics card.</li>
+<li>The adapter supports up to 200W power delivery and features a 16-pin (12VHPWR) power connector, similar to Nvidia's higher-end graphics cards like the GeForce RTX 5090.</li>
+<li>The MXM RTX5000 Ada is priced at approximately $4,743.66, which is 15% more than the desktop RTX5000 Ada, available for $4,124 in the US.</li>
+<li>Compared to the desktop RTX5000 Ada, the MXM RTX5000 Ada offers diminished performance levels, making it less desirable for most users.</li>
+<li>The target audience for the MXM RTX5000 Ada appears to be professional or workstation users looking to upgrade their laptops that accept the MXM form factor.</li>
+</ul>
+
+<h2>🧠 Sentiment Analysis</h2>
+
+<div class="sentiment-section">
+
+
+<div class='sentiment-block positive'>
+<h3>Positive</h3>
+<ul>
+<li>The MXM to PCIe x16 adapter is a useful accessory for users who want to swap the MXM RTX5000 Ada between their laptops and desktops.</li>
+<li>For professional or workstation users looking to upgrade their laptops that accept the MXM form factor, there may be interest in the MXM RTX5000 Ada.</li>
+<li>In desperate times, however, a GPU is a GPU, and it's interesting to see Zotac breathe life into silicon that might otherwise sit unused.</li>
+</ul>
+</div>
+<div class='sentiment-block neutral'>
+<h3>Neutral</h3>
+<ul>
+<li>Nvidia introduced the RTX Pro6000 (Blackwell) graphics card targeted at professionals and data centers a few months ago, and partners are beginning to sell off stockpiles of older RTX5000 Ada GPUs.</li>
+<li>The MXM (Mobile PCI Express Module) form factor is predominantly utilized in laptops and mobile workstations.</li>
+<li>The adapter utilizes the 16-pin (12VHPWR) power connector, which is common on Nvidia's latest higher-end graphics cards.</li>
+</ul>
+</div>
+<div class='sentiment-block negative'>
+<h3>Negative</h3>
+<ul>
+<li>The MXM RTX5000 Ada version possesses 24% fewer CUDA cores and half the memory capacity of the desktop RTX5000 Ada card.</li>
+<li>Zotac's MXM RTX5000 Ada is priced at approximately $4,743.66, which is quite high considering the RTX5000 Ada itself is not sold for that amount.</li>
+<li>By choosing the MXM RTX5000 Ada, you're paying 15% extra for a less powerful version.</li>
+<li>For most users, however, choosing a desktop RTX5000 Ada from the start is the more cost-effective and higher-performance option.</li>
+</ul>
+</div>
+</div>
+
+</section>
+<hr style='border: 1px solid #ccc; margin: 30px 0;'>
 
 <section class='article-analysis'>
+<input value='https://www.tomshardware.com/pc-components/gpus/zotac-breathes-new-life-into-leftover-mxm-rtx-5000-ada-gpus-in-china-at-usd4-700-a-pop-pcie-adapter-brings-mobile-ada-lovelace-gpu-to-desktops' style='width: auto; transform: scale(1.5);' type="checkbox" name='articleCheckBox'/>
 <h2>📰 Article Information</h2>
 
 <table>
@@ -214,11 +277,11 @@ file.close()'''
 '''def save_to_database(final_content_html=final_content_html):
     insert_to_supabase(final_content_html)'''
 
-def send_email(email_content_html):
+def send_email(email_content_html, email_address):
     msg = MIMEMultipart("alternative")
     msg['Subject'] = "Daily Summary"
     msg['From'] = "howlin1218@gmail.com"
-    msg['To'] = "howlin1218@gmail.com"
+    msg['To'] = email_address
     msg.attach(MIMEText(email_content_html, "html"))
 
     # Connect using TLS

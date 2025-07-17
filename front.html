@@ -90,7 +90,45 @@
         #clearArticlesBtn:hover {
             background: #c40303;
         }
-        
+
+        #emailArticlesBtn {
+            display: inline-block;
+            background: #25a804;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px; 
+            padding: 5px 10px;
+        }
+
+        #emailArticlesBtn:hover {
+            background: #3b7702;
+        }
+
+        #selectionsBtn {
+            display: inline-block;
+            background: #888a80;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px; 
+            padding: 5px 10px;
+        }   
+
+        #selectionsBtn:hover {
+            background: #6b7066;
+        }
+
+        .article-container {
+            margin-bottom: 10px;
+        }
+
         .form-group {
             margin-bottom: 1rem;
         }
@@ -228,6 +266,33 @@
         .sentiment-block.negative { border-left: 5px solid red; }
         .sentiment-block.neutral  { border-left: 5px solid gray; }
         .sentiment-block h3 { margin-top: 0; }
+
+        .modal {
+            display: none; /* hidden initially */
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .buttons {
+            text-align: right;
+            margin-top: 12px;
+        }
+        .buttons button {
+            margin-left: 8px;
+        }       
     </style>
 </head>
 <body>
@@ -516,20 +581,33 @@
             </form>
         </div>
         
-        <div class="card" id="articles-card" style="display: none;">
+        <div class="card" id="articles-card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h2>Articles Found</h2>
-                <div style="display: flex; width: fit-content; gap: 10px;">
-                    <button type="button" id="clearArticlesBtn" >Clear All</button>
-                    <button type="button" id="saveArticlesBtn">Save All</button>
+                <div id="button-container" style="display: flex; width: fit-content; gap: 10px;">
+                    <button type="button" id="selectionsBtn" style="display: none;">Clear Selections</button>
+                    <button style="display: none;" type="button" id="clearArticlesBtn">Clear All</button>
+                    <button style="display: none;" type="button" id="saveArticlesBtn">Save All</button>
+                    <button style="display: none;" type="button" id="emailArticlesBtn">Email All</button>
                 </div>
             </div>
             <div id="activity-log">
-                <p>No articles found.</p>
             </div>
         </div>
     </div>
     
+    <!-- Modal container (hidden by default) -->
+    <div id="emailModal" class="modal">
+        <div class="modal-content">
+            <h2>Enter Your Email</h2>
+            <input id="emailInput" type="email" placeholder="your@email.com" />
+            <div class="buttons">
+                <button id="cancelBtn">Cancel</button>
+                <button id="submitBtn" disabled>Submit</button>
+            </div>
+        </div>
+    </div>
+
     <script src="/js/main.js"></script>
 </body>
 </html>
