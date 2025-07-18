@@ -251,6 +251,25 @@ function hideModal(): void {
 }
 // DOM Content Loaded event handler
 document.addEventListener('DOMContentLoaded', function(): void {
+    const btn = document.getElementById("backToTopBtn");
+    const targetSection = document.getElementById("articles-card");
+if (btn) {
+
+  // Show button when scrolling down
+  window.addEventListener("scroll", () => {
+    if (window.scrollY >1200) {
+      btn.style.display = "block";
+    } else {
+      btn.style.display = "none";
+    }
+  });
+
+  // Scroll to top on click
+  btn.addEventListener("click", () => {
+    targetSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
     // Dropdown functionality for site search
     const websiteDropdownButton = document.getElementById('websiteDropdownButton');
     const websiteDropdownContent = document.getElementById('websiteDropdownContent');
