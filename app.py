@@ -10,7 +10,7 @@ d_month = now.month
 d_day = now.day
 # Import your existing modules
 try:
-    from automate_email import construct_message, json_dict, send_email, email_dict # Import your email automation
+    from automate_email import construct_message, json_dict, send_email, email_dict, save_to_file # Import your email automation
     from test import search_all_sites  # Import your scraping logic
     from database import insert_to_supabase
 except ImportError:
@@ -84,6 +84,7 @@ def search_site():
         results_list = search_all_sites(search_terms=search_terms, article_limit=limit, filter_year=year, filter_month=month, filter_day=day, sites_to_search=websites, keywords=keywords)
                 
         return_str = construct_message(results_list=results_list)
+        #save_to_file(return_str)
         return jsonify({"status": "success", 
                         "message": "returning json",
                         "html": return_str

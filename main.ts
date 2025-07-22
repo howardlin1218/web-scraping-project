@@ -86,39 +86,78 @@ async function makeApiRequest(endpoint: string, data: SearchValues): Promise<Api
 }
 
 // Function to display results in the activity log
-function displayResults(searchType: string, response: ApiResponse): void {
+function displayResults(response: ApiResponse): void {
+    const stored = localStorage.getItem("savedArticles");
+    if (!stored) return;
+
+    let savedArticles: string[];
+    try {
+        savedArticles = JSON.parse(stored);
+    } catch {
+        return;
+    }
+
     const activityLog = document.getElementById('activity-log');
     const articlesCard = document.getElementById('articles-card');
     if (!activityLog || !articlesCard) return;
-
-    //console.log('displayResults called with:', { searchType, responseStatus: response.status, hasHtml: !!response.html });
     
     // Show the articles card
     articlesCard.style.display = 'block';
+    
+    // Check if this is the first result - if so, clear the default "No articles found" message
+    const isFirstResult = activityLog.children.length === 0;
+    console.log("Activity Log child nodes: ", activityLog.children.length);
+    if (isFirstResult) {
+        const saveButtonTextContent = document.getElementById("saveArticlesBtn") as HTMLButtonElement;
+        const emailButtonTextContent = document.getElementById("emailArticlesBtn") as HTMLButtonElement;
+        const clearArticlesBtn = document.getElementById('clearArticlesBtn') as HTMLButtonElement;
 
-    /*const timestamp = new Date().toLocaleString();
-    const resultDiv = document.createElement('div');
-    resultDiv.style.marginBottom = '10px';
-    resultDiv.style.padding = '10px';
-    resultDiv.style.border = '1px solid #ddd';
-    resultDiv.style.borderRadius = '4px';
-    if (response.status === 'success') {
-        //resultDiv.style.backgroundColor = '#d4edda';
-        if (response.html && response.html !== 'no body') {
-            //resultDiv.innerHTML = `<div style="border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 10px;"><strong>${timestamp} - ${searchType}:</strong></div>`;
-            //console.log('Adding successful result with HTML content');
-        } else {
-            resultDiv.innerHTML = `<strong>${timestamp} - ${searchType}:</strong><br>No articles found.`;
-            //console.log('Adding result with no articles found');
-        }
-    } else {
-        resultDiv.style.backgroundColor = '#f8d7da';
-        resultDiv.innerHTML = `
-            <strong>${timestamp} - ${searchType} Error:</strong><br>
-            ${response.message}
-        `;
-        //console.log('Adding error result');
-    }*/
+        saveButtonTextContent.style.display = "inline-block";
+        emailButtonTextContent.style.display = "inline-block";
+        clearArticlesBtn.style.display = "inline-block";
+    }
+    
+    const temp = document.createElement("div");
+    temp.innerHTML = response.html;
+
+    const newArticles: string[] = [];
+    temp.querySelectorAll(".article-container").forEach(el => {
+        newArticles.push(el.outerHTML);
+    });
+
+    // Append new result (don't clear existing content)
+    newArticles.forEach(articleHTML => {
+        activityLog.insertAdjacentHTML('afterbegin', articleHTML);
+    })
+
+    // Scroll to the Articles Found section with smooth animation
+    setTimeout(() => {
+        articlesCard.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+        });
+    }, 100); // Small delay to ensure the content is rendered
+}
+
+// function to display saved articles 
+// Function to display results in the activity log
+function displayResultsReload(): void {
+    const stored = localStorage.getItem("savedArticles");
+    if (!stored) return;
+
+    let savedArticles: string[];
+    try {
+        savedArticles = JSON.parse(stored);
+    } catch {
+        return;
+    }
+
+    const activityLog = document.getElementById('activity-log');
+    const articlesCard = document.getElementById('articles-card');
+    if (!activityLog || !articlesCard) return;
+    
+    // Show the articles card
+    articlesCard.style.display = 'block';
     
     // Check if this is the first result - if so, clear the default "No articles found" message
     const isFirstResult = activityLog.children.length === 0;
@@ -134,10 +173,9 @@ function displayResults(searchType: string, response: ApiResponse): void {
     }
     
     // Append new result (don't clear existing content)
-    //console.log('Appending result. Total children before:', activityLog.children.length);
-    activityLog.insertAdjacentHTML('afterbegin', response.html);
-    //activityLog.insertBefore(resultDiv, activityLog.firstChild);
-    //console.log('Total children after:', activityLog.children.length);
+    savedArticles.forEach(articleHTML => {
+        activityLog.insertAdjacentHTML('beforeend', articleHTML);
+    })
 
     // Scroll to the Articles Found section with smooth animation
     setTimeout(() => {
@@ -145,10 +183,8 @@ function displayResults(searchType: string, response: ApiResponse): void {
             behavior: 'smooth', 
             block: 'start' 
         });
-        //console.log('Scrolled to Articles Found section');
     }, 100); // Small delay to ensure the content is rendered
 }
-
 // function to get unchecked articles
 function getUncheckedArticles(): string[] {
     const allCheckboxes = document.querySelectorAll('input[name="articleCheckBox"]') as NodeListOf<HTMLInputElement>;
@@ -185,17 +221,25 @@ function clearCheckboxes(): void {
 
 function clearArticles(): void {
     const container = document.getElementById("activity-log");
+    const stored = localStorage.getItem("savedArticles");
     if (!container) return;
 
+    let savedArticles: string[] = [];
+    if (stored) {
+        savedArticles = JSON.parse(stored);
+    }
+    
     const sections = container.querySelectorAll(".article-container");
+    //let updatedArticles: string[] = [];
 
     sections.forEach(section => {
     const checkbox = section.querySelector('input[name="articleCheckBox"]') as HTMLInputElement | null;
     if (checkbox?.checked) {
         (section as HTMLElement).remove();
+        savedArticles = savedArticles.filter(html => !html.includes(section.outerHTML));
         }
     });
-
+    localStorage.setItem("savedArticles", JSON.stringify(savedArticles));
     return;
 }
 
@@ -249,26 +293,50 @@ function showModal(): void {
 function hideModal(): void {
     modal.classList.remove("show");
 }
+
+// save to local storage 
+function saveToLocalStorage(newHMTL: string) {
+    const temp = document.createElement("div");
+    temp.innerHTML = newHMTL;
+
+    const newArticles: string[] = [];
+    temp.querySelectorAll(".article-container").forEach(el => {
+        newArticles.push(el.outerHTML);
+    });
+
+    const stored = localStorage.getItem("savedArticles");
+    let savedArticles: string[] = [];
+
+    if (stored) {
+        savedArticles = JSON.parse(stored);
+    }
+
+    // append saved articles to new articles 
+    newArticles.push(...savedArticles);
+    localStorage.setItem("savedArticles", JSON.stringify(newArticles));
+
+}
+
 // DOM Content Loaded event handler
 document.addEventListener('DOMContentLoaded', function(): void {
+    displayResultsReload();
     const btn = document.getElementById("backToTopBtn");
     const targetSection = document.getElementById("articles-card");
-if (btn) {
+    if (btn) {
+        // Show button when scrolling down
+        window.addEventListener("scroll", () => {
+            if (window.scrollY >1200) {
+                btn.style.display = "block";
+            } else {
+                btn.style.display = "none";
+            }
+        });
 
-  // Show button when scrolling down
-  window.addEventListener("scroll", () => {
-    if (window.scrollY >1200) {
-      btn.style.display = "block";
-    } else {
-      btn.style.display = "none";
+        // Scroll to top on click
+        btn.addEventListener("click", () => {
+            targetSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
     }
-  });
-
-  // Scroll to top on click
-  btn.addEventListener("click", () => {
-    targetSection?.scrollIntoView({ behavior: "smooth", block: "start" });
-  });
-}
 
     // Dropdown functionality for site search
     const websiteDropdownButton = document.getElementById('websiteDropdownButton');
@@ -456,11 +524,7 @@ if (btn) {
                 if (articleCheckboxes.length == 0) {
                     console.log("Removing all");
                     children.forEach(child => child.remove());
-                    const p_tag = activityLog.querySelector("p");
-                    if (p_tag) {
-                        p_tag.textContent = "No Searches.";
-                    }
-
+                    localStorage.clear();
                     saveButtonTextContent.style.display = "none";
                     emailButtonTextContent.style.display = "none";
                     clearArticlesBtn.style.display = "none";
@@ -631,8 +695,8 @@ if (btn) {
                 const response = await makeApiRequest('/search-site', values);
                 //console.log('Received response:', response);
                 if (response.status === 'success') {
-                    alert(`Success! ${response.message}`);
-                    displayResults('Site Search', response);
+                    saveToLocalStorage(response.html);
+                    displayResults(response);
                 } else {
                     alert(`Error: ${response.message}`);
                 }
@@ -678,7 +742,7 @@ if (btn) {
                 //console.log('Making database API request with values:', values);
                 const response = await makeApiRequest('/search-database', values);
                 //console.log('Received database response:', response);
-                displayResults('Database Search', response);
+                displayResults(response);
                 
                 if (response.status === 'success') {
                     //console.log("response success")

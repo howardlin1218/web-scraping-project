@@ -35,17 +35,17 @@ website_urls = {"https://www.tomshardware.com/search": "Tom's Hardware",
 
 def convert_metadata_to_html(website_url, title, author, publish_date, keywords, link):
     rows = ""
-    rows += f"<tr><th>Website</th><td>{website_urls[website_url]}</td></tr>\n"
-    rows += f"<tr><th>Title</th><td>{title}</td></tr>\n"
-    rows += f"<tr><th>Author</th><td>{author}</td></tr>\n"
-    rows += f"<tr><th>Publish Date</th><td>{publish_date}</td></tr>\n"
-    rows += f"<tr><th>Keywords</th><td>{', '.join(keywords) if keywords else ''}</td></tr>\n"
+    rows += f"<tr><th style='border: 1px solid #ccc; padding: 0.75rem; text-align: left; background-color: #f0f0f0;'>Website</th><td style='border: 1px solid #ccc; padding: 0.75rem; text-align: left;'>{website_urls[website_url]}</td></tr>\n"
+    rows += f"<tr><th style='border: 1px solid #ccc; padding: 0.75rem; text-align: left; background-color: #f0f0f0;'>Title</th><td style='border: 1px solid #ccc; padding: 0.75rem; text-align: left;'>{title}</td></tr>\n"
+    rows += f"<tr><th style='border: 1px solid #ccc; padding: 0.75rem; text-align: left; background-color: #f0f0f0;'>Author</th><td style='border: 1px solid #ccc; padding: 0.75rem; text-align: left;'>{author}</td></tr>\n"
+    rows += f"<tr><th style='border: 1px solid #ccc; padding: 0.75rem; text-align: left; background-color: #f0f0f0;'>Publish Date</th><td style='border: 1px solid #ccc; padding: 0.75rem; text-align: left;'>{publish_date}</td></tr>\n"
+    rows += f"<tr><th style='border: 1px solid #ccc; padding: 0.75rem; text-align: left; background-color: #f0f0f0;'>Keywords</th><td style='border: 1px solid #ccc; padding: 0.75rem; text-align: left;'>{', '.join(keywords) if keywords else ''}</td></tr>\n"
     link = f'<a href="{link}" target="_blank">{link}</a>'
-    rows += f"<tr><th>Article Link</th><td>{link}</td></tr>\n"
+    rows += f"<tr><th style='border: 1px solid #ccc; padding: 0.75rem; text-align: left; background-color: #f0f0f0;'>Article Link</th><td style='border: 1px solid #ccc; padding: 0.75rem; text-align: left;'>{link}</td></tr>\n"
 
     return f"""
 <h2>📰 Article Information</h2>\n
-<table>
+<table style='width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; background-color: #fff;'>
 \n{rows}</table>\n"""
      
 def convert_response_to_html_list_summary(bullet_list_response):
@@ -56,7 +56,7 @@ def convert_response_to_html_list_summary(bullet_list_response):
         if line[0] == "*":
             content = line[1:].strip()
             list_items.append(f"<li>{content}</li>")
-    html = "<ul>\n" + "\n".join(list_items) + "\n</ul>\n"
+    html = "<ul style='background-color: #fff; padding: 1rem 1.5rem; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 2rem;'>\n" + "\n".join(list_items) + "\n</ul>\n"
     return "<h2>📌 Summary</h2>\n"+html
 
 def convert_response_to_html_list_sentiment(bullet_list_response):
@@ -68,17 +68,17 @@ def convert_response_to_html_list_sentiment(bullet_list_response):
             continue
         if line[0] == "*":
             if "positive" in line[1:].lower():
-                rows += "<div class='sentiment-block positive'>\n<h3>Positive</h3>\n<ul>\n"
+                rows += "<div class='sentiment-block positive' style='background-color: #fff; padding: 1rem 1.5rem; border-radius: 8px; border: 1px solid #ccc; border-left: 5px solid green; '>\n<h3 style='margin-top: 0;'>Positive</h3>\n<ul>\n"
             if "neutral" in line[1:].lower():
-                rows += "</ul>\n</div>\n<div class='sentiment-block neutral'>\n<h3>Neutral</h3>\n<ul>\n"
+                rows += "</ul>\n</div>\n<div class='sentiment-block neutral' style='background-color: #fff; padding: 1rem 1.5rem; border-radius: 8px; border: 1px solid #ccc; border-left: 5px solid red; '>\n<h3 style='margin-top: 0;'>Neutral</h3>\n<ul>\n"
             if "negative" in line[1:].lower():
-                rows += "</ul>\n</div>\n<div class='sentiment-block negative'>\n<h3>Negative</h3>\n<ul>\n"
+                rows += "</ul>\n</div>\n<div class='sentiment-block negative' style='background-color: #fff; padding: 1rem 1.5rem; border-radius: 8px; border: 1px solid #ccc; border-left: 5px solid gray; '>\n<h3 style='margin-top: 0;'>Negative</h3>\n<ul>\n"
             continue
         rows += f"<li>{line[1:].strip()}</li>\n"
     rows += "</ul>\n</div>\n</div>\n"
     return f"""
 <h2>🧠 Sentiment Analysis</h2>\n
-<div class="sentiment-section">\n
+<div class="sentiment-section" style='display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;'>\n
 \n{rows}\n"""
 
 def construct_message(email_content=email_content, results_list=results_list):
@@ -134,7 +134,7 @@ def construct_message(email_content=email_content, results_list=results_list):
             current_article_html += convert_response_to_html_list_sentiment(llm_response_sentiment)
             
             # for email 
-            email_html = "<div class='article-container' style='margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;'>\n<section class='article-analysis'>\n" + current_article_html + "</section>\n</div>\n"
+            email_html = "<div class='article-container' style='margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;'>\n<section class='article-analysis' style='font-family: Arial, sans-serif; padding: 1rem; background-color: #f9f9f9;'>\n" + current_article_html + "</section>\n</div>\n"
             email_dict[article_url] = email_html
 
             # for frontend
@@ -268,14 +268,11 @@ def construct_message(email_content=email_content, results_list=results_list):
 """'''
 
 '''results_list = test.search_all_sites(search_terms=["desktop"], article_limit=1, filter_year=2024, filter_month=6, filter_day=1, sites_to_search=[0], keywords=[])
-email_content_html = construct_message(results_list=results_list)
+email_content_html = construct_message(results_list=results_list)'''
 
-with open("summaries.html", "w", encoding="utf-8") as file:
-        file.write(email_content_html)
-file.close()'''
-
-'''def save_to_database(final_content_html=final_content_html):
-    insert_to_supabase(final_content_html)'''
+def save_to_file(email_content_html):
+    with open("summaries.html", "w", encoding="utf-8") as file:
+            file.write(email_content_html)
 
 def send_email(email_content_html, email_address):
     msg = MIMEMultipart("alternative")
