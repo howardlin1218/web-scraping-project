@@ -23,6 +23,25 @@ interface ApiResponse {
 // API Configuration
 const API_BASE_URL = 'http://127.0.0.1:5000/api';
 
+async function makeApiRequest_recent(endpoint: string): Promise<ApiResponse> {
+    const url = `${API_BASE_URL}${endpoint}`;
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return await response.json();
+    } catch (error) {
+        return {
+            status: 'error',
+            message: 'Network error or server unavailable',
+            html: 'no body'
+        };
+    }
+}
+
 async function makeApiRequest_send(endpoint: string, data: string[], email_address: string): Promise<ApiResponse> {
     const url = `${API_BASE_URL}${endpoint}`;
     try {
@@ -90,13 +109,6 @@ function displayResults(response: ApiResponse): void {
     const stored = localStorage.getItem("savedArticles");
     if (!stored) return;
 
-    let savedArticles: string[];
-    try {
-        savedArticles = JSON.parse(stored);
-    } catch {
-        return;
-    }
-
     const activityLog = document.getElementById('activity-log');
     const articlesCard = document.getElementById('articles-card');
     if (!activityLog || !articlesCard) return;
@@ -106,7 +118,7 @@ function displayResults(response: ApiResponse): void {
     
     // Check if this is the first result - if so, clear the default "No articles found" message
     const isFirstResult = activityLog.children.length === 0;
-    console.log("Activity Log child nodes: ", activityLog.children.length);
+    // console.log("Activity Log child nodes: ", activityLog.children.length);
     if (isFirstResult) {
         const saveButtonTextContent = document.getElementById("saveArticlesBtn") as HTMLButtonElement;
         const emailButtonTextContent = document.getElementById("emailArticlesBtn") as HTMLButtonElement;
@@ -120,15 +132,9 @@ function displayResults(response: ApiResponse): void {
     const temp = document.createElement("div");
     temp.innerHTML = response.html;
 
-    const newArticles: string[] = [];
     temp.querySelectorAll(".article-container").forEach(el => {
-        newArticles.push(el.outerHTML);
+        activityLog.insertAdjacentHTML('afterbegin', el.outerHTML);
     });
-
-    // Append new result (don't clear existing content)
-    newArticles.forEach(articleHTML => {
-        activityLog.insertAdjacentHTML('afterbegin', articleHTML);
-    })
 
     // Scroll to the Articles Found section with smooth animation
     setTimeout(() => {
@@ -161,7 +167,7 @@ function displayResultsReload(): void {
     
     // Check if this is the first result - if so, clear the default "No articles found" message
     const isFirstResult = activityLog.children.length === 0;
-    console.log("Activity Log child nodes: ", activityLog.children.length);
+    // console.log("Activity Log child nodes: ", activityLog.children.length);
     if (isFirstResult) {
         const saveButtonTextContent = document.getElementById("saveArticlesBtn") as HTMLButtonElement;
         const emailButtonTextContent = document.getElementById("emailArticlesBtn") as HTMLButtonElement;
@@ -267,13 +273,13 @@ function getDatabaseSearchValues(): SearchValues {
     const websites = Array.from(websiteCheckboxes).map(checkbox => checkbox.value);
 
     return {
-        websites: websites,
-        searchTerms: (document.getElementById('database-search') as HTMLInputElement)?.value || '',
-        limit: Number((document.getElementById('database-amount') as HTMLInputElement)?.value) || 5,
-        day: Number((document.getElementById('database-day') as HTMLSelectElement)?.value) || 15,
-        month: Number((document.getElementById('database-month') as HTMLSelectElement)?.value) || 6,
-        year: Number((document.getElementById('database-year') as HTMLSelectElement)?.value) || 2025,
-        keywords: (document.getElementById('database-keywords') as HTMLInputElement)?.value || ''
+        websites: websites || ["0"],
+        searchTerms: (document.getElementById('search') as HTMLInputElement)?.value || "MSI Gaming",
+        limit: Number((document.getElementById('amount') as HTMLInputElement)?.value) || 1,
+        day: Number((document.getElementById('day') as HTMLSelectElement)?.value) || n_day,
+        month: Number((document.getElementById('month') as HTMLSelectElement)?.value) || n_month,
+        year: Number((document.getElementById('year') as HTMLSelectElement)?.value) || n_year,
+        keywords: (document.getElementById('keywords') as HTMLInputElement)?.value || ""
     };
 }
 
@@ -301,7 +307,7 @@ function saveToLocalStorage(newHMTL: string) {
 
     const newArticles: string[] = [];
     temp.querySelectorAll(".article-container").forEach(el => {
-        newArticles.push(el.outerHTML);
+        newArticles.unshift(el.outerHTML);
     });
 
     const stored = localStorage.getItem("savedArticles");
@@ -519,17 +525,17 @@ document.addEventListener('DOMContentLoaded', function(): void {
 
                 // TESTING CLEARING
                 const children = activityLog.querySelectorAll(".article-container");
-                console.log("Boxes checked: ", articleCheckboxes.length);
-                console.log("Before clearing, article count: ", children.length);
+                // console.log("Boxes checked: ", articleCheckboxes.length);
+                // console.log("Before clearing, article count: ", children.length);
                 if (articleCheckboxes.length == 0) {
-                    console.log("Removing all");
+                    // console.log("Removing all");
                     children.forEach(child => child.remove());
                     localStorage.clear();
                     saveButtonTextContent.style.display = "none";
                     emailButtonTextContent.style.display = "none";
                     clearArticlesBtn.style.display = "none";
                 } else {
-                    console.log("Removing selected");
+                    // console.log("Removing selected");
                     clearArticles();
                     clearCheckboxes();
                     // Restore button state
@@ -537,7 +543,7 @@ document.addEventListener('DOMContentLoaded', function(): void {
                     saveButtonTextContent.textContent = "Save All";
                     clearSelectionsButton.style.display = "none";
                 }
-                console.log("After clearing, article count: ", activityLog.querySelectorAll(".article-container").length);
+                // console.log("After clearing, article count: ", activityLog.querySelectorAll(".article-container").length);
             }
         });
     }
@@ -637,7 +643,7 @@ document.addEventListener('DOMContentLoaded', function(): void {
                     return;
                 }
             } 
-
+            //alert(`${articleCheckboxes.length}`)
             const originalText = saveArticlesBtn.textContent;
             saveArticlesBtn.textContent = 'Saving...';
             saveArticlesBtn.disabled = true;
@@ -707,6 +713,36 @@ document.addEventListener('DOMContentLoaded', function(): void {
                 // Restore button state
                 submitButton.textContent = originalText;
                 submitButton.disabled = false;
+            }
+        });
+    }
+    
+    const recentBtn = document.getElementById('recent-ten') as HTMLButtonElement; 
+    if (recentBtn) {
+        recentBtn.addEventListener('click', async function(e: Event): Promise<void> {
+            e.preventDefault();
+
+            const originalText = recentBtn.textContent;
+            recentBtn.textContent = 'Requesting...';
+            recentBtn.disabled = true;
+
+            try {
+                const response = await makeApiRequest_recent('/recent-saves');
+                //console.log('Received reponse: ', response);
+                if (response.status === 'success') {
+                    alert("Sucessfully requested");
+                    saveToLocalStorage(response.html);
+                    displayResults(response);
+                } else {
+                    alert(`Error: ${response.message}`);
+                }
+            } catch (error) {
+                //console.error('Search failed:', error);
+                alert('Save failed. Please try again.');
+            } finally {
+            // Restore button state
+                recentBtn.textContent = originalText;
+                recentBtn.disabled = false;
             }
         });
     }

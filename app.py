@@ -10,14 +10,14 @@ d_month = now.month
 d_day = now.day
 # Import your existing modules
 try:
-    from automate_email import construct_message, json_dict, send_email, email_dict, save_to_file # Import your email automation
+    from automate_email import construct_message, json_dict, send_email, email_dict # Import your email automation
     from test import search_all_sites  # Import your scraping logic
-    from database import insert_to_supabase
+    from database import insert_to_supabase, get_recent_10_articles
 except ImportError:
     print("Warning: Could not import some modules. Make sure database.py and automate_email.py exist.")
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend communication
+CORS(app)  # Enable CORS for frontend communication 
 
 @app.route('/api/email-to-user', methods=['POST'])
 def email_to_user():
@@ -26,7 +26,6 @@ def email_to_user():
         payload = json.loads(request.data.decode("utf-8"))
         article_ids = payload.get("data")
         email_address = payload.get("email_address")
-        print(payload, article_ids, email_address)
         for article_id in article_ids:
             email_html_content += email_dict[article_id]
         send_email(email_html_content, email_address)
@@ -94,6 +93,27 @@ def search_site():
         print(str(e))
         return jsonify({
             'status': 'error',
+            'message': str(e)
+        }), 500
+
+@app.route('/api/recent-saves', methods=['GET'])
+def get_recent_articles():
+    try:
+        response = get_recent_10_articles()
+        '''for dict in response: 
+            input_tag = f"<input value='{dict['url']}' style='width: auto; transform: scale(1.5);' type='checkbox' name='articleCheckBox' />\n"
+            for_email_html = dict['content'].replace(input_tag, "")
+
+            email_dict[dict['url']] = for_email_html'''
+
+        return jsonify({"status": "success", 
+                        "message": "got 10 most recent articles saved",
+                        "html": "".join(article.get("content", "") for article in response)
+                        }), 200
+    except Exception as e:
+        print(str(e))
+        return jsonify({
+            'status': 'error fetching from database',
             'message': str(e)
         }), 500
 
