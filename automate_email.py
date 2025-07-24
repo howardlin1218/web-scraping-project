@@ -2,11 +2,9 @@ import smtplib
 #from email.message import EmailMessage
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import test
 import os 
 from dotenv import load_dotenv
 from groq import Groq
-from database import insert_to_supabase
 
 load_dotenv()
 api_key = os.getenv("GROQ_API_KEY")

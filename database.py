@@ -41,7 +41,7 @@ def get_recent_10_articles():
         print(f"error: {e}")
         return 500
     
-'''def populate_fields():
+def populate_fields():
     try:
         response = (
             supabase.table("articles")
@@ -54,8 +54,7 @@ def get_recent_10_articles():
                 for_email_html = dict['content'].replace(input_tag, "")
                 email_dict[dict['url']] = for_email_html
 
-                json_dict[dict['url']] = {"website": dict['website'], "title": dict['title'], "author": dict['author'], "published": dict['published'], "keywords": dict['keywords'], "url": dict['url'], "content": dict['content']}
-                
+                json_dict[dict['url']] = {"website": dict['website'], "title": dict['title'], "author": dict['author'], "published": dict['published'], "keywords": dict['keywords'], "url": dict['url'], "content": dict['content']}           
     except Exception as e:
         print(f"error: {e}")
-        return 500'''
+        return 500

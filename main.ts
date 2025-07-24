@@ -106,11 +106,21 @@ async function makeApiRequest(endpoint: string, data: SearchValues): Promise<Api
 
 // Function to display results in the activity log
 function displayResults(response: ApiResponse): void {
+    const articlesCard = document.getElementById('articles-card');
+    if (response.html === "") {
+        setTimeout(() => {
+            articlesCard?.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+        });
+    }, 100); // Small delay to ensure the content is rendered
+        return;
+    }
+    saveToLocalStorage(response.html);
     const stored = localStorage.getItem("savedArticles");
     if (!stored) return;
 
     const activityLog = document.getElementById('activity-log');
-    const articlesCard = document.getElementById('articles-card');
     if (!activityLog || !articlesCard) return;
     
     // Show the articles card
@@ -118,7 +128,6 @@ function displayResults(response: ApiResponse): void {
     
     // Check if this is the first result - if so, clear the default "No articles found" message
     const isFirstResult = activityLog.children.length === 0;
-    // console.log("Activity Log child nodes: ", activityLog.children.length);
     if (isFirstResult) {
         const saveButtonTextContent = document.getElementById("saveArticlesBtn") as HTMLButtonElement;
         const emailButtonTextContent = document.getElementById("emailArticlesBtn") as HTMLButtonElement;
@@ -167,7 +176,6 @@ function displayResultsReload(): void {
     
     // Check if this is the first result - if so, clear the default "No articles found" message
     const isFirstResult = activityLog.children.length === 0;
-    // console.log("Activity Log child nodes: ", activityLog.children.length);
     if (isFirstResult) {
         const saveButtonTextContent = document.getElementById("saveArticlesBtn") as HTMLButtonElement;
         const emailButtonTextContent = document.getElementById("emailArticlesBtn") as HTMLButtonElement;
@@ -521,21 +529,14 @@ document.addEventListener('DOMContentLoaded', function(): void {
             const articleCheckboxes: string[] = getCheckedArticles();
             
             if (activityLog && articlesCard) {
-                // clear all
-
-                // TESTING CLEARING
                 const children = activityLog.querySelectorAll(".article-container");
-                // console.log("Boxes checked: ", articleCheckboxes.length);
-                // console.log("Before clearing, article count: ", children.length);
                 if (articleCheckboxes.length == 0) {
-                    // console.log("Removing all");
                     children.forEach(child => child.remove());
                     localStorage.clear();
                     saveButtonTextContent.style.display = "none";
                     emailButtonTextContent.style.display = "none";
                     clearArticlesBtn.style.display = "none";
                 } else {
-                    // console.log("Removing selected");
                     clearArticles();
                     clearCheckboxes();
                     // Restore button state
@@ -543,7 +544,6 @@ document.addEventListener('DOMContentLoaded', function(): void {
                     saveButtonTextContent.textContent = "Save All";
                     clearSelectionsButton.style.display = "none";
                 }
-                // console.log("After clearing, article count: ", activityLog.querySelectorAll(".article-container").length);
             }
         });
     }
@@ -580,7 +580,6 @@ document.addEventListener('DOMContentLoaded', function(): void {
 
         submitBtn.addEventListener("click", async function(e: Event): Promise<void> {
             hideModal();
-            // TODO: send emailInput.value to backend here
             if (submitBtn.disabled === true) {
                 return;
             }
@@ -602,15 +601,12 @@ document.addEventListener('DOMContentLoaded', function(): void {
 
             try {
                 const response = await makeApiRequest_send('/email-to-user', articleCheckboxes, emailInput.value);
-                //console.log('Received reponse: ', response);
                 if (response.status === 'success') {
                     alert("Sucessfully sent");
-                    //clearCheckboxes();
                 } else {
                     alert(`Error: ${response.message}`);
                 }
             } catch (error) {
-                //console.error('Search failed:', error);
                 alert('Save failed. Please try again.');
             } finally {
             // Restore button state
@@ -632,7 +628,6 @@ document.addEventListener('DOMContentLoaded', function(): void {
     if (saveArticlesBtn) {
         saveArticlesBtn.addEventListener('click', async function(e: Event): Promise<void> {
             let articleCheckboxes: string[] = getCheckedArticles();
-            //console.log('Saving article urls: ', articleCheckboxes);
             e.preventDefault();
             
             // save all articles
@@ -643,14 +638,12 @@ document.addEventListener('DOMContentLoaded', function(): void {
                     return;
                 }
             } 
-            //alert(`${articleCheckboxes.length}`)
             const originalText = saveArticlesBtn.textContent;
             saveArticlesBtn.textContent = 'Saving...';
             saveArticlesBtn.disabled = true;
 
             try {
                 const response = await makeApiRequest_save('/save-to-database', articleCheckboxes);
-                //console.log('Received reponse: ', response);
                 if (response.status === 'success') {
                     alert("Sucessfully saved");
                     //clearCheckboxes();
@@ -658,7 +651,6 @@ document.addEventListener('DOMContentLoaded', function(): void {
                     alert(`Error: ${response.message}`);
                 }
             } catch (error) {
-                //console.error('Search failed:', error);
                 alert('Save failed. Please try again.');
             } finally {
             // Restore button state
@@ -675,8 +667,6 @@ document.addEventListener('DOMContentLoaded', function(): void {
         quickActionsForm.addEventListener('submit', async function(e: Event): Promise<void> {
             e.preventDefault();
             const values: SearchValues = getSiteSearchValues();
-            
-            //console.log('Site search values:', values);
             
             // Validation
             if (!values.searchTerms.trim()) {
@@ -697,17 +687,13 @@ document.addEventListener('DOMContentLoaded', function(): void {
 
             try {
                 // Make API request to backend
-                //console.log('Making API request with values:', values);
                 const response = await makeApiRequest('/search-site', values);
-                //console.log('Received response:', response);
                 if (response.status === 'success') {
-                    saveToLocalStorage(response.html);
                     displayResults(response);
                 } else {
                     alert(`Error: ${response.message}`);
                 }
             } catch (error) {
-                //console.error('Search failed:', error);
                 alert('Search failed. Please try again.');
             } finally {
                 // Restore button state
@@ -728,7 +714,6 @@ document.addEventListener('DOMContentLoaded', function(): void {
 
             try {
                 const response = await makeApiRequest_recent('/recent-saves');
-                //console.log('Received reponse: ', response);
                 if (response.status === 'success') {
                     alert("Sucessfully requested");
                     saveToLocalStorage(response.html);
@@ -737,7 +722,6 @@ document.addEventListener('DOMContentLoaded', function(): void {
                     alert(`Error: ${response.message}`);
                 }
             } catch (error) {
-                //console.error('Search failed:', error);
                 alert('Save failed. Please try again.');
             } finally {
             // Restore button state
@@ -753,8 +737,6 @@ document.addEventListener('DOMContentLoaded', function(): void {
         databaseSearchForm.addEventListener('submit', async function(e: Event): Promise<void> {
             e.preventDefault();
             const values: SearchValues = getDatabaseSearchValues();
-            
-            //console.log('Database search values:', values);
             
             // Validation
             if (!values.searchTerms.trim()) {
@@ -775,13 +757,10 @@ document.addEventListener('DOMContentLoaded', function(): void {
 
             try {
                 // Make API request to backend
-                //console.log('Making database API request with values:', values);
                 const response = await makeApiRequest('/search-database', values);
-                //console.log('Received database response:', response);
                 displayResults(response);
                 
                 if (response.status === 'success') {
-                    //console.log("response success")
                     alert(`Success! ${response.message}`);
                 } else {
                     alert(`Error: ${response.message}`);
@@ -797,36 +776,3 @@ document.addEventListener('DOMContentLoaded', function(): void {
         });
     }
 });
-
-/*document.addEventListener('click', async (event) => {
-  const target = event.target as HTMLButtonElement;
-
-  if (target.id.includes('saveArticlesBtn')) {
-    event.preventDefault();
-
-    const id = target.id;
-    console.log("article id (url): ", id);
-    
-    const originalText = target.textContent;
-    target.textContent = 'Saving...';
-    target.disabled = true;
-    
-    try {
-        const response = await makeApiRequest_save('/save-to-database', id);
-        console.log('Received reponse: ', response);
-        if (response.status === 'success') {
-            alert("Sucessfully saved");
-        } else {
-            alert(`Error: ${response.message}`);
-        }
-    } catch (error) {
-        console.error('Search failed:', error);
-        alert('Save failed. Please try again.');
-    } finally {
-        // Restore button state
-        target.textContent = originalText;
-        target.disabled = false;
-    }
-  }
-    
-}); */

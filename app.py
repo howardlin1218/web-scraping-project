@@ -3,7 +3,8 @@ from flask_cors import CORS
 import json
 from datetime import datetime
 import sys
-import os
+import signal
+
 now = datetime.now()
 d_year = now.year 
 d_month = now.month
@@ -12,7 +13,7 @@ d_day = now.day
 try:
     from automate_email import construct_message, json_dict, send_email, email_dict # Import your email automation
     from test import search_all_sites  # Import your scraping logic
-    from database import insert_to_supabase, get_recent_10_articles
+    from database import insert_to_supabase, get_recent_10_articles, populate_fields
 except ImportError:
     print("Warning: Could not import some modules. Make sure database.py and automate_email.py exist.")
 
@@ -42,11 +43,9 @@ def email_to_user():
 @app.route('/api/save-to-database', methods=['POST'])
 def save_to_database():
     try:
-        list_of_json_data = []
         payload = request.get_json()
         article_ids = payload.get("data")
-        for article_id in article_ids:
-            list_of_json_data.append(json_dict[article_id])
+        list_of_json_data = [json_dict[article_id] for article_id in article_ids]
         insert_to_supabase(list_of_json_data)
         return jsonify({"status": "success", 
                         "message": "saved successfully to database"
@@ -100,11 +99,11 @@ def search_site():
 def get_recent_articles():
     try:
         response = get_recent_10_articles()
-        '''for dict in response: 
+        for dict in response: 
             input_tag = f"<input value='{dict['url']}' style='width: auto; transform: scale(1.5);' type='checkbox' name='articleCheckBox' />\n"
             for_email_html = dict['content'].replace(input_tag, "")
 
-            email_dict[dict['url']] = for_email_html'''
+            email_dict[dict['url']] = for_email_html
 
         return jsonify({"status": "success", 
                         "message": "got 10 most recent articles saved",
@@ -169,5 +168,16 @@ def health_check():
         'timestamp': datetime.now().isoformat()
     })
 
+def save_before_server_shutdown():
+    insert_to_supabase(list(json_dict.values()))
+
+def graceful_shutdown(sig, frame):
+    insert_to_supabase(list(json_dict.values()))
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, graceful_shutdown)  # Ctrl+C
+signal.signal(signal.SIGTERM, graceful_shutdown)
+
 if __name__ == '__main__':
+    populate_fields()
     app.run(debug=True, host='127.0.0.1', port=5000)
