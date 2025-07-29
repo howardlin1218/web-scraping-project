@@ -40,6 +40,20 @@ def get_recent_10_articles():
     except Exception as e:
         print(f"error: {e}")
         return 500
+
+def search_for_articles(websites, search_terms, limit, date, keywords): 
+    try: 
+        response = (
+            supabase.table("articles")
+            .select("content, url")
+            .order("created_at", desc=True)
+            .limit(10)
+            .execute()
+        )
+        return response.data
+    except Exception as e: 
+        print(f"error {e}")
+        return 500
     
 def populate_fields():
     try:

@@ -4,7 +4,9 @@ import json
 from datetime import datetime
 import sys
 import signal
+import re
 
+comma_splitter = re.compile(r'\s*,\s*')
 now = datetime.now()
 d_year = now.year 
 d_month = now.month
@@ -65,7 +67,7 @@ def search_site():
         
         # Extract search parameters
         websites = [int(x) for x in data.get('websites', ["0"])]
-        search_terms = [data.get('searchTerms', '')]
+        search_terms = comma_splitter.split(data.get('searchTerms', ''))
         limit = data.get('limit')
         day = data.get('day')
         month = data.get('month')
@@ -125,7 +127,7 @@ def search_database():
         # Extract search parameters
         websites = data.get('websites', [])
         search_terms = data.get('searchTerms', '')
-        limit = data.get('limit', 5)
+        limit = data.get('limit', '')
         day = data.get('day', 0)
         month = data.get('month', '')
         year = data.get('year', 0)

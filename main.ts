@@ -14,6 +14,17 @@ interface SearchValues {
     keywords: string;
 }
 
+interface SearchValuesDatabase {
+    websites: string[];
+    searchTerms: string;
+    limit: number;
+    day: number;
+    month: number;
+    year: number;
+    keywords: string;
+    urls: string;
+}
+
 interface ApiResponse {
     status: 'success' | 'error';
     message: string;
@@ -275,19 +286,23 @@ function getSiteSearchValues(): SearchValues {
 }
 
 // Function to get values from "Search database" form
-function getDatabaseSearchValues(): SearchValues {
+function getDatabaseSearchValues(): SearchValuesDatabase {
     // Get all checked website checkboxes from database form
     const websiteCheckboxes = document.querySelectorAll('input[name="database-websites"]:checked') as NodeListOf<HTMLInputElement>;
-    const websites = Array.from(websiteCheckboxes).map(checkbox => checkbox.value);
+    const websites = Array.from(websiteCheckboxes).map(checkbox => {
+        const label = document.querySelector(`label[for="${checkbox.id}"]`);
+        return label?.textContent?.trim() ?? "";
+    });
 
     return {
         websites: websites || ["0"],
         searchTerms: (document.getElementById('search') as HTMLInputElement)?.value || "MSI Gaming",
         limit: Number((document.getElementById('amount') as HTMLInputElement)?.value) || 1,
-        day: Number((document.getElementById('day') as HTMLSelectElement)?.value) || n_day,
-        month: Number((document.getElementById('month') as HTMLSelectElement)?.value) || n_month,
-        year: Number((document.getElementById('year') as HTMLSelectElement)?.value) || n_year,
-        keywords: (document.getElementById('keywords') as HTMLInputElement)?.value || ""
+        day: Number((document.getElementById('day') as HTMLSelectElement)?.value) || 0,
+        month: Number((document.getElementById('month') as HTMLSelectElement)?.value) || 0,
+        year: Number((document.getElementById('year') as HTMLSelectElement)?.value) || 0,
+        keywords: (document.getElementById('keywords') as HTMLInputElement)?.value || "",
+        urls: (document.getElementById('urls') as HTMLInputElement)?.value || ""
     };
 }
 

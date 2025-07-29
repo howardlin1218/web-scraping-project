@@ -358,7 +358,7 @@
                     <div style="display: flex; gap: 10px; align-items: flex-end;">
                         <div style="flex: 2;">
                             <label for="search">Search terms</label>
-                            <input type="text" id="search" name="search" placeholder="Enter search terms..." style="width: 100%;">
+                            <input type="text" id="search" name="search" placeholder="Enter search terms (comma separated)" style="width: 100%;">
                         </div>
                         <div style="flex: 1;">
                             <label for="amount" style="margin-bottom: 5px; font-size: 14px;">Limit</label>
@@ -501,7 +501,7 @@
                         </div>
                         <div style="flex: 1;">
                             <label for="database-amount" style="margin-bottom: 5px; font-size: 14px;">Limit</label>
-                            <input type="number" id="database-amount" name="amount" min="1" max="100" value="5" style="width: 100%;">
+                            <input type="number" id="database-amount" name="amount" min="0" max="100" value="5" style="width: 100%;">
                         </div>
                     </div>
                 </div>
@@ -575,6 +575,8 @@
                 <div class="form-group">
                     <label for="database-keywords">Keywords:</label>
                     <input type="text" id="database-keywords" name="keywords" placeholder="Enter keywords (comma separated)" value="">
+                    <label for="database-urls">URLs:</label>
+                    <input type="text" id="database-urls" name="urls" placeholder="Enter URLs (comma separated)" value="">
                 </div>
                 
                 <button type="submit" class="btn">Search Database</button>
