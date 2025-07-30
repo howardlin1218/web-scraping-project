@@ -94,8 +94,29 @@ async function makeApiRequest_save(endpoint: string, data: string[]): Promise<Ap
     }
 }
 
-// Function to make API requests
+// Function to make API requests for site search
 async function makeApiRequest(endpoint: string, data: SearchValues): Promise<ApiResponse> {
+    const url = `${API_BASE_URL}${endpoint}`;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        return await response.json();
+    } catch (error) {
+        return {
+            status: 'error',
+            message: 'Network error or server unavailable',
+            html: 'no body'
+        };
+    }
+}
+
+// Function to make API requests for site search
+async function makeApiRequestDatabase(endpoint: string, data: SearchValuesDatabase): Promise<ApiResponse> {
     const url = `${API_BASE_URL}${endpoint}`;
     try {
         const response = await fetch(url, {
@@ -295,14 +316,14 @@ function getDatabaseSearchValues(): SearchValuesDatabase {
     });
 
     return {
-        websites: websites || ["0"],
-        searchTerms: (document.getElementById('search') as HTMLInputElement)?.value || "MSI Gaming",
-        limit: Number((document.getElementById('amount') as HTMLInputElement)?.value) || 1,
-        day: Number((document.getElementById('day') as HTMLSelectElement)?.value) || 0,
-        month: Number((document.getElementById('month') as HTMLSelectElement)?.value) || 0,
-        year: Number((document.getElementById('year') as HTMLSelectElement)?.value) || 0,
-        keywords: (document.getElementById('keywords') as HTMLInputElement)?.value || "",
-        urls: (document.getElementById('urls') as HTMLInputElement)?.value || ""
+        websites: websites || ["Tom's Hardware"],
+        searchTerms: (document.getElementById('database-search') as HTMLInputElement)?.value || "",
+        limit: Number((document.getElementById('database-amount') as HTMLInputElement)?.value) || 0,
+        day: Number((document.getElementById('database-day') as HTMLSelectElement)?.value) || n_day,
+        month: Number((document.getElementById('database-month') as HTMLSelectElement)?.value) || n_month,
+        year: Number((document.getElementById('database-year') as HTMLSelectElement)?.value) || n_year,
+        keywords: (document.getElementById('database-keywords') as HTMLInputElement)?.value || "",
+        urls: (document.getElementById('database-urls') as HTMLInputElement)?.value || ""
     };
 }
 
@@ -557,6 +578,7 @@ document.addEventListener('DOMContentLoaded', function(): void {
                     // Restore button state
                     clearButtonTextContent.textContent = "Clear All";
                     saveButtonTextContent.textContent = "Save All";
+                    emailButtonTextContent.textContent = "Email All";
                     clearSelectionsButton.style.display = "none";
                 }
             }
@@ -751,13 +773,13 @@ document.addEventListener('DOMContentLoaded', function(): void {
     if (databaseSearchForm) {
         databaseSearchForm.addEventListener('submit', async function(e: Event): Promise<void> {
             e.preventDefault();
-            const values: SearchValues = getDatabaseSearchValues();
+            const values: SearchValuesDatabase = getDatabaseSearchValues();
             
-            // Validation
-            if (!values.searchTerms.trim()) {
-                alert('Please enter search terms');
-                return;
-            }
+            // // Validation
+            // if (!values.searchTerms.trim()) {
+            //     alert('Please enter search terms');
+            //     return;
+            // }
 
             if (values.websites.length === 0) {
                 alert('Please select at least one website');
@@ -772,11 +794,9 @@ document.addEventListener('DOMContentLoaded', function(): void {
 
             try {
                 // Make API request to backend
-                const response = await makeApiRequest('/search-database', values);
-                displayResults(response);
-                
+                const response = await makeApiRequestDatabase('/search-database', values);
                 if (response.status === 'success') {
-                    alert(`Success! ${response.message}`);
+                    displayResults(response);
                 } else {
                     alert(`Error: ${response.message}`);
                 }

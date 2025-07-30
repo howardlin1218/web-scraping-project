@@ -15,7 +15,7 @@ d_day = now.day
 try:
     from automate_email import construct_message, json_dict, send_email, email_dict # Import your email automation
     from test import search_all_sites  # Import your scraping logic
-    from database import insert_to_supabase, get_recent_10_articles, populate_fields
+    from database import insert_to_supabase, get_recent_10_articles, populate_fields, search_for_articles
 except ImportError:
     print("Warning: Could not import some modules. Make sure database.py and automate_email.py exist.")
 
@@ -125,38 +125,45 @@ def search_database():
         data = request.get_json()
         
         # Extract search parameters
-        websites = data.get('websites', [])
-        search_terms = data.get('searchTerms', '')
-        limit = data.get('limit', '')
-        day = data.get('day', 0)
-        month = data.get('month', '')
-        year = data.get('year', 0)
-        keywords = data.get('keywords', '')
+        websites = data.get('websites') # required
+        search_terms = comma_splitter.split(data.get('searchTerms', ''))
+        limit = data.get('limit') # optional
+        keywords = data.get('keywords') # optional
+        urls = data.get('urls') # optional
+        day = data.get('day') # optional
+        month = data.get('month') # optional
+        year = data.get('year') # optional
+
+        if keywords != "":
+            keywords = keywords.strip().replace(" ", "").split(",")
+        else: 
+            keywords = []
+
+        if urls != "":
+            urls = urls.strip().replace(" ", "").split(",")
+        else: 
+            urls = []
         
+        # print("websites: ", websites)
+        # print("search terms: ", search_terms)
+        # print("limit: ", limit)
+        # print("day: ", day)
+        # print("month: ", month)
+        # print("year: ", year)
+        # print("keywords: ", keywords)
+        # print("urls: ", urls)
+
         # Log the search request
-        print(f"Database search request: {search_terms} on {len(websites)} websites")
-        
+        print(f"Database search request: matching titles with {search_terms} with limit of {limit}")
+        response = search_for_articles(websites, search_terms, limit, keywords, urls, day, month, year)
         # Here you can integrate with your existing database functions
-        results = {
-            'status': 'success',
-            'message': f'Searching database for "{search_terms}" on {len(websites)} websites with limit {limit}',
-            'data': {
-                'websites': websites,
-                'search_terms': search_terms,
-                'limit': limit,
-                'date': {'day': day, 'month': month, 'year': year},
-                'keywords': keywords.split(',') if keywords else [],
-                'timestamp': datetime.now().isoformat()
-            },
-            'articles': []  # This would contain your database results
-        }
-        
-        # TODO: Add your actual database search logic here
-        # results['articles'] = search_articles_in_database(search_terms, limit, ...)
-        
-        return jsonify(results)
+        return jsonify({"status": "success", 
+                        "message": "returning json",
+                        "html": "".join(article.get("content", "") for article in response)
+                        }), 200
         
     except Exception as e:
+        print(str(e))
         return jsonify({
             'status': 'error',
             'message': str(e)

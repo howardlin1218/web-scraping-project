@@ -36,20 +36,38 @@ def get_recent_10_articles():
             .limit(10)
             .execute()
         )
+        print(response.data)
         return response.data
     except Exception as e:
         print(f"error: {e}")
         return 500
 
-def search_for_articles(websites, search_terms, limit, date, keywords): 
+def search_for_articles(websites, search_terms, limit, keywords, urls, day, month, year): 
     try: 
-        response = (
-            supabase.table("articles")
-            .select("content, url")
-            .order("created_at", desc=True)
-            .limit(10)
-            .execute()
-        )
+        query = supabase.table("articles").select("content")
+
+        # website match (exact)
+        if websites: 
+            query = query.in_("website", websites)
+        
+        # url match (optional, exact)
+        if urls: 
+            query = query.in_("url", urls)
+
+        if search_terms: 
+            for term in search_terms: 
+                query = query.or_(f"title.ilike.%{term}%")
+
+        if keywords: 
+            for keyword in keywords: 
+                query = query.or_(f"content.ilike.%{keyword}%")
+
+        if limit != 0: 
+            query = query.limit(limit)
+
+        query = query.order("created_at", desc=True)
+
+        response = query.execute()
         return response.data
     except Exception as e: 
         print(f"error {e}")

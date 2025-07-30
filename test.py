@@ -138,6 +138,9 @@ def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms,
 
             at_least_one_article = False
             for article in articles:
+                m_day = day
+                m_month = month
+                m_year = year
                 if i < article_limit:
                     current_article_text = ""
                     author = article.find("span", style ="white-space:nowrap").get_text(strip=True)
@@ -156,6 +159,9 @@ def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms,
                             if months[parsed_date[1].lower()] == filter_month:
                                 if int(parsed_date[0]) < filter_day:
                                     continue
+                        m_day = int(parsed_date[0])
+                        m_month = months[parsed_date[1].lower()]
+                        m_year = int("20"+parsed_date[-1])
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
                         opened_article = BeautifulSoup(response.text, "html.parser")
@@ -171,7 +177,10 @@ def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms,
                                                               matched, 
                                                               title, 
                                                               author, 
-                                                              publish_date]
+                                                              publish_date,
+                                                              m_day, 
+                                                              m_month, 
+                                                              m_year]
                             i += 1
                             at_least_one_article = True
                     else:
@@ -221,6 +230,9 @@ def search_pc_mag(website_url=website_urls[1], search_terms=search_terms, articl
            #print("Searching articles and matching keywords...\n")
             at_least_one_article = False
             for article in articles:  
+                m_day = day
+                m_month = month
+                m_year = year
                 if i < article_limit:
                     # get the link tag <a>
                     a_tag = article.find("a", attrs={"x-track-ga-click": True})
@@ -238,6 +250,9 @@ def search_pc_mag(website_url=website_urls[1], search_terms=search_terms, articl
                             if int(parsed_date[0]) == filter_month:
                                 if int(parsed_date[1]) < filter_day:
                                     continue
+                            m_day = int(parsed_date[1])
+                            m_month = int(parsed_date[0]) 
+                            m_year = int(parsed_date[-1])
                     # synopsis = article.find("p", class_="line-clamp-2").get_text(strip=True)
                     author = article.find_all("a",  attrs={"data-element": "author-name"})
                     author_names = []
@@ -265,10 +280,13 @@ def search_pc_mag(website_url=website_urls[1], search_terms=search_terms, articl
                         matched = match_keywords(current_article_text)
                         if len(matched) != 0:
                             matched_article_metadata[link] = [current_article_text, 
-                                                              matched, 
-                                                              title,
-                                                              author,
-                                                              publish_date]
+                                                            matched, 
+                                                            title,
+                                                            author,
+                                                            publish_date,
+                                                            m_day,
+                                                            m_month,
+                                                            m_year]
                             i += 1
                             at_least_one_article = True
                     else:
@@ -310,6 +328,9 @@ def search_the_pc_enthusiast(website_url=website_urls[2], search_terms=search_te
             
             at_least_one_article = False
             for article in articles:
+                m_day = day
+                m_month = month
+                m_year = year
                 if i < article_limit:  
                     # get the link tag <a>
                     author = article.find("span", class_="author-name").get_text(strip=True)
@@ -328,6 +349,9 @@ def search_the_pc_enthusiast(website_url=website_urls[2], search_terms=search_te
                             if months[parsed_date[0].lower()] == filter_month:
                                 if int(parsed_date[1]) < filter_day:
                                     continue
+                            m_day = int(parsed_date[1]) 
+                            m_month = months[parsed_date[0].lower()]
+                            m_year = int(parsed_date[-1])
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -347,7 +371,10 @@ def search_the_pc_enthusiast(website_url=website_urls[2], search_terms=search_te
                                                         matched,
                                                         title,
                                                         author,
-                                                        publish_date]
+                                                        publish_date,
+                                                        m_day, 
+                                                        m_month, 
+                                                        m_year]
                             i += 1
                             at_least_one_article = True
                     else:
@@ -388,6 +415,9 @@ def search_hothardware(website_url=website_urls[3], search_terms=search_terms, a
             #print("Searching articles and matching keywords...\n")
             at_least_one_article = False
             for article in articles:  
+                m_day = day
+                m_month = month
+                m_year = year
                 if i < article_limit:
                     author = article.find("div", class_="cli-byline").get_text(strip=True).split('-')[0].strip()[3:]
                     title_link_tag = article.find("a", class_="black p-name u-url")
@@ -405,6 +435,9 @@ def search_hothardware(website_url=website_urls[3], search_terms=search_terms, a
                             if months[parsed_date[1].lower()] == filter_month:
                                 if int(parsed_date[2]) < filter_day:
                                     continue
+                            m_day = int(parsed_date[2])
+                            m_month = months[parsed_date[1].lower()]
+                            m_year = int(parsed_date[-1])
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -421,7 +454,10 @@ def search_hothardware(website_url=website_urls[3], search_terms=search_terms, a
                                                         matched, 
                                                         title, 
                                                         author, 
-                                                        publish_date]
+                                                        publish_date, 
+                                                        m_day, 
+                                                        m_month, 
+                                                        m_year]
                             i += 1
                             at_least_one_article = True
                     else:
@@ -461,6 +497,9 @@ def search_pc_perspective(website_url=website_urls[4], search_terms=search_terms
             #print("Searching articles and matching keywords...\n")
             at_least_one_article = False
             for article in articles:  
+                m_day = day
+                m_month = month
+                m_year = year
                 if i < article_limit:
                     # get the link tag <a>
                     author = article.find("a", rel="author").get_text(strip=True)
@@ -479,6 +518,9 @@ def search_pc_perspective(website_url=website_urls[4], search_terms=search_terms
                             if months[parsed_date[0].lower()] == filter_month:
                                 if int(parsed_date[1]) < filter_day:
                                     continue
+                            m_day = int(parsed_date[1])
+                            m_month = months[parsed_date[0].lower()]
+                            m_year = int(parsed_date[-1])
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -498,7 +540,10 @@ def search_pc_perspective(website_url=website_urls[4], search_terms=search_terms
                                                         matched, 
                                                         title, 
                                                         author, 
-                                                        publish_date]
+                                                        publish_date, 
+                                                        m_day, 
+                                                        m_month, 
+                                                        m_year]
                             i += 1
                             at_least_one_article = True
                     else:
@@ -538,6 +583,9 @@ def search_gamerant(website_url=website_urls[5], search_terms=search_terms, arti
             
             at_least_one_article = False
             for article in articles:  
+                m_day = day
+                m_month = month
+                m_year = year
                 if i < article_limit:
                     # get the link tag <a>
                     author = article.find("a", rel="author").get_text(strip=True)
@@ -556,6 +604,9 @@ def search_gamerant(website_url=website_urls[5], search_terms=search_terms, arti
                             if months[parsed_date[0].lower()] == filter_month:
                                 if int(parsed_date[1]) < filter_day:
                                     continue
+                            m_day = int(parsed_date[1])
+                            m_month = months[parsed_date[0].lower()]
+                            m_year = int(parsed_date[-1])
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -575,7 +626,10 @@ def search_gamerant(website_url=website_urls[5], search_terms=search_terms, arti
                                                         matched, 
                                                         title, 
                                                         author, 
-                                                        publish_date]
+                                                        publish_date, 
+                                                        m_day, 
+                                                        m_month, 
+                                                        m_year]
                             i += 1
                             at_least_one_article = True
                     else:
@@ -616,6 +670,9 @@ def search_windows_central(website_url=website_urls[6], search_terms=search_term
             
             at_least_one_article = False
             for article in articles:  
+                m_day = day
+                m_month = month
+                m_year = year
                 if i < article_limit:
                 # get the link tag <a>
                     author = article.find("span", style="white-space:nowrap").get_text(strip=True)
@@ -633,6 +690,9 @@ def search_windows_central(website_url=website_urls[6], search_terms=search_term
                             if months[parsed_date[1].lower()] == filter_month:
                                 if int(parsed_date[0]) < filter_day:
                                     continue
+                            m_day = int(parsed_date[0]) 
+                            m_month = months[parsed_date[1].lower()]
+                            m_year = int("20" + parsed_date[-1])
                     current_article_text = ""   
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -652,7 +712,10 @@ def search_windows_central(website_url=website_urls[6], search_terms=search_term
                                                         matched, 
                                                         title, 
                                                         author, 
-                                                        publish_date]
+                                                        publish_date, 
+                                                        m_day, 
+                                                        m_month,
+                                                        m_year]
                             i += 1
                             at_least_one_article = True
                     else:
@@ -694,6 +757,9 @@ def search_tech_radar(website_url=website_urls[7], search_terms=search_terms, ar
 
             at_least_one_article = False
             for article in articles:  
+                m_day = day
+                m_month = month
+                m_year = year
                 if i < article_limit:
                     # get the link tag <a>
                     author = article.find("span", style="white-space:nowrap").get_text(strip=True)
@@ -711,6 +777,9 @@ def search_tech_radar(website_url=website_urls[7], search_terms=search_terms, ar
                             if months[parsed_date[1].lower()] == filter_month:
                                 if int(parsed_date[0]) < filter_day:
                                     continue
+                            m_day = int(parsed_date[0])
+                            m_month = months[parsed_date[1].lower()]
+                            m_year = int("20"+parsed_date[-1])
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -730,7 +799,10 @@ def search_tech_radar(website_url=website_urls[7], search_terms=search_terms, ar
                                                         matched, 
                                                         title, 
                                                         author, 
-                                                        publish_date]
+                                                        publish_date, 
+                                                        m_day, 
+                                                        m_month, 
+                                                        m_year]
                             i += 1
                             at_least_one_article = True
                     else:
