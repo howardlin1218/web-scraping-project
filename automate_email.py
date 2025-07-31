@@ -139,7 +139,7 @@ def construct_message(email_content=email_content, results_list=results_list):
             current_article_html = f"<div class='article-container' style='margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;'>\n<section class='article-analysis' style='font-family: Arial, sans-serif; padding: 1rem; background-color: #f9f9f9;'>\n<input value='{article_url}' style='width: auto; transform: scale(1.5);' type='checkbox' name='articleCheckBox' />\n" + current_article_html+ "</section>\n</div>\n"
             
             # for database
-            json_dict[article_url] = {"website": website_urls[website_url], "title": metadata[2], "author": metadata[3], "published": metadata[4], "keywords": (", ".join(metadata[1]) if metadata[1] else ""), "url": article_url, "content": current_article_html}
+            json_dict[article_url] = {"website": website_urls[website_url], "title": metadata[2], "author": metadata[3], "published": metadata[4], "keywords": (", ".join(metadata[1]) if metadata[1] else ""), "url": article_url, "content": current_article_html, "day": metadata[5], "month": metadata[6], "year":metadata[7]}
 
             # full article list html - for email
             partial_email_html += current_article_html
@@ -272,11 +272,11 @@ def save_to_file(email_content_html):
     with open("summaries.html", "w", encoding="utf-8") as file:
             file.write(email_content_html)
 
-def send_email(email_content_html, email_address):
+def send_email(email_content_html, email_address, recipient_emails):
     msg = MIMEMultipart("alternative")
     msg['Subject'] = "Daily Summary"
-    msg['From'] = "howlin1218@gmail.com"
-    msg['To'] = email_address
+    msg['From'] = email_address
+    msg['To'] = ", ".join(recipient_emails)
     msg.attach(MIMEText(email_content_html, "html"))
 
     # Connect using TLS
@@ -285,5 +285,5 @@ def send_email(email_content_html, email_address):
         smtp.starttls()       # Start TLS encryption
         smtp.ehlo()           # Re-identify after starting TLS (optional but good practice)
         smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-        smtp.send_message(msg)
+        smtp.sendmail(msg['From'], recipient_emails, msg.as_string())
     print("email successfully sent!")

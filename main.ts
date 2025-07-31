@@ -278,11 +278,14 @@ function clearArticles(): void {
     const sections = container.querySelectorAll(".article-container");
     //let updatedArticles: string[] = [];
 
+    let currentArticleIndex = 0
     sections.forEach(section => {
     const checkbox = section.querySelector('input[name="articleCheckBox"]') as HTMLInputElement | null;
     if (checkbox?.checked) {
+        console.log(1);
         (section as HTMLElement).remove();
-        savedArticles = savedArticles.filter(html => !html.includes(section.outerHTML));
+        savedArticles = savedArticles.filter(html => !html.includes(section.outerHTML)); // PROBLEM HERE
+        currentArticleIndex++;
         }
     });
     localStorage.setItem("savedArticles", JSON.stringify(savedArticles));
@@ -753,7 +756,6 @@ document.addEventListener('DOMContentLoaded', function(): void {
                 const response = await makeApiRequest_recent('/recent-saves');
                 if (response.status === 'success') {
                     alert("Sucessfully requested");
-                    saveToLocalStorage(response.html);
                     displayResults(response);
                 } else {
                     alert(`Error: ${response.message}`);
