@@ -41,9 +41,22 @@ def get_recent_10_articles():
         print(f"error: {e}")
         return 500
 
+def get_all_saved():
+    try:
+        response = (
+            supabase.table("articles")
+            .select("content, url")
+            .order("created_at", desc=False)
+            .execute()
+        )
+        return response.data
+    except Exception as e:
+        print(f"error: {e}")
+        return 500
+    
 def search_for_articles(websites, search_terms, limit, keywords, urls, day, month, year): 
     try: 
-        query = supabase.table("articles").select("content")
+        query = supabase.table("articles").select("content, url")
 
         # website match (exact)
         if websites: 

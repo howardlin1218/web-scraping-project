@@ -139,13 +139,15 @@ async function makeApiRequestDatabase(endpoint: string, data: SearchValuesDataba
 // Function to display results in the activity log
 function displayResults(response: ApiResponse): void {
     const articlesCard = document.getElementById('articles-card');
-    if (response.html === "") {
+    const article_search_result = document.getElementById('article-search-status')
+    if (response.html === "" && article_search_result) {
         setTimeout(() => {
             articlesCard?.scrollIntoView({ 
             behavior: 'smooth', 
             block: 'start' 
         });
     }, 100); // Small delay to ensure the content is rendered
+        article_search_result.textContent = 'No Articles Found';
         return;
     }
     saveToLocalStorage(response.html);
@@ -184,6 +186,9 @@ function displayResults(response: ApiResponse): void {
             block: 'start' 
         });
     }, 100); // Small delay to ensure the content is rendered
+    if (article_search_result) {
+        article_search_result.textContent = 'Articles Found';
+    }
 }
 
 // function to display saved articles 
@@ -276,19 +281,22 @@ function clearArticles(): void {
     }
     
     const sections = container.querySelectorAll(".article-container");
-    //let updatedArticles: string[] = [];
+    let updatedArticles: string[] = [];
 
     let currentArticleIndex = 0
     sections.forEach(section => {
     const checkbox = section.querySelector('input[name="articleCheckBox"]') as HTMLInputElement | null;
     if (checkbox?.checked) {
-        console.log(1);
+
         (section as HTMLElement).remove();
-        savedArticles = savedArticles.filter(html => !html.includes(section.outerHTML)); // PROBLEM HERE
-        currentArticleIndex++;
-        }
+
+        // savedArticles = savedArticles.filter(html => !html.includes(section.outerHTML));
+    } else {
+        updatedArticles.push(savedArticles[currentArticleIndex])
+    }
+    currentArticleIndex++;
     });
-    localStorage.setItem("savedArticles", JSON.stringify(savedArticles));
+    localStorage.setItem("savedArticles", JSON.stringify(updatedArticles));
     return;
 }
 
@@ -766,6 +774,33 @@ document.addEventListener('DOMContentLoaded', function(): void {
             // Restore button state
                 recentBtn.textContent = originalText;
                 recentBtn.disabled = false;
+            }
+        });
+    }
+
+    const allSavedBtn = document.getElementById('saved-all') as HTMLButtonElement; 
+    if (allSavedBtn) {
+        allSavedBtn.addEventListener('click', async function(e: Event): Promise<void> {
+            e.preventDefault();
+
+            const originalText = allSavedBtn.textContent;
+            allSavedBtn.textContent = 'Requesting...';
+            allSavedBtn.disabled = true;
+
+            try {
+                const response = await makeApiRequest_recent('/all-saved');
+                if (response.status === 'success') {
+                    alert("Sucessfully requested");
+                    displayResults(response);
+                } else {
+                    alert(`Error: ${response.message}`);
+                }
+            } catch (error) {
+                alert('Save failed. Please try again.');
+            } finally {
+            // Restore button state
+                allSavedBtn.textContent = originalText;
+                allSavedBtn.disabled = false;
             }
         });
     }

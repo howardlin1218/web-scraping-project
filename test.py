@@ -250,9 +250,9 @@ def search_pc_mag(website_url=website_urls[1], search_terms=search_terms, articl
                             if int(parsed_date[0]) == filter_month:
                                 if int(parsed_date[1]) < filter_day:
                                     continue
-                            m_day = int(parsed_date[1])
-                            m_month = int(parsed_date[0]) 
-                            m_year = int(parsed_date[-1])
+                        m_day = int(parsed_date[1])
+                        m_month = int(parsed_date[0]) 
+                        m_year = int(parsed_date[-1])
                     # synopsis = article.find("p", class_="line-clamp-2").get_text(strip=True)
                     author = article.find_all("a",  attrs={"data-element": "author-name"})
                     author_names = []
@@ -349,9 +349,9 @@ def search_the_pc_enthusiast(website_url=website_urls[2], search_terms=search_te
                             if months[parsed_date[0].lower()] == filter_month:
                                 if int(parsed_date[1]) < filter_day:
                                     continue
-                            m_day = int(parsed_date[1]) 
-                            m_month = months[parsed_date[0].lower()]
-                            m_year = int(parsed_date[-1])
+                        m_day = int(parsed_date[1]) 
+                        m_month = months[parsed_date[0].lower()]
+                        m_year = int(parsed_date[-1])
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -435,9 +435,9 @@ def search_hothardware(website_url=website_urls[3], search_terms=search_terms, a
                             if months[parsed_date[1].lower()] == filter_month:
                                 if int(parsed_date[2]) < filter_day:
                                     continue
-                            m_day = int(parsed_date[2])
-                            m_month = months[parsed_date[1].lower()]
-                            m_year = int(parsed_date[-1])
+                        m_day = int(parsed_date[2])
+                        m_month = months[parsed_date[1].lower()]
+                        m_year = int(parsed_date[-1])
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -518,9 +518,9 @@ def search_pc_perspective(website_url=website_urls[4], search_terms=search_terms
                             if months[parsed_date[0].lower()] == filter_month:
                                 if int(parsed_date[1]) < filter_day:
                                     continue
-                            m_day = int(parsed_date[1])
-                            m_month = months[parsed_date[0].lower()]
-                            m_year = int(parsed_date[-1])
+                        m_day = int(parsed_date[1])
+                        m_month = months[parsed_date[0].lower()]
+                        m_year = int(parsed_date[-1])
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -604,9 +604,9 @@ def search_gamerant(website_url=website_urls[5], search_terms=search_terms, arti
                             if months[parsed_date[0].lower()] == filter_month:
                                 if int(parsed_date[1]) < filter_day:
                                     continue
-                            m_day = int(parsed_date[1])
-                            m_month = months[parsed_date[0].lower()]
-                            m_year = int(parsed_date[-1])
+                        m_day = int(parsed_date[1])
+                        m_month = months[parsed_date[0].lower()]
+                        m_year = int(parsed_date[-1])
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -690,9 +690,9 @@ def search_windows_central(website_url=website_urls[6], search_terms=search_term
                             if months[parsed_date[1].lower()] == filter_month:
                                 if int(parsed_date[0]) < filter_day:
                                     continue
-                            m_day = int(parsed_date[0]) 
-                            m_month = months[parsed_date[1].lower()]
-                            m_year = int("20" + parsed_date[-1])
+                        m_day = int(parsed_date[0]) 
+                        m_month = months[parsed_date[1].lower()]
+                        m_year = int("20" + parsed_date[-1])
                     current_article_text = ""   
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:
@@ -777,9 +777,9 @@ def search_tech_radar(website_url=website_urls[7], search_terms=search_terms, ar
                             if months[parsed_date[1].lower()] == filter_month:
                                 if int(parsed_date[0]) < filter_day:
                                     continue
-                            m_day = int(parsed_date[0])
-                            m_month = months[parsed_date[1].lower()]
-                            m_year = int("20"+parsed_date[-1])
+                        m_day = int(parsed_date[0])
+                        m_month = months[parsed_date[1].lower()]
+                        m_year = int("20"+parsed_date[-1])
                     current_article_text = ""
                     response = requests.get(link, headers=headers)
                     if response.status_code == 200:

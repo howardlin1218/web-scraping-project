@@ -15,7 +15,7 @@ d_day = now.day
 try:
     from automate_email import construct_message, json_dict, send_email, email_dict # Import your email automation
     from test import search_all_sites  # Import your scraping logic
-    from database import insert_to_supabase, get_recent_10_articles, populate_fields, search_for_articles
+    from database import insert_to_supabase, get_recent_10_articles, populate_fields, search_for_articles, get_all_saved
 except ImportError:
     print("Warning: Could not import some modules. Make sure database.py and automate_email.py exist.")
 
@@ -31,7 +31,7 @@ def email_to_user():
         email_address = payload.get("email_address")
         for article_id in article_ids:
             email_html_content += email_dict[article_id]
-        send_email(email_html_content, email_address)
+        send_email(email_content_html=email_html_content, email_address="howlin1218@gmail.com", recipient_emails=email_address)
         return jsonify({"status": "success", 
                         "message": "email successfully sent"
                         }), 200
@@ -118,6 +118,27 @@ def get_recent_articles():
             'message': str(e)
         }), 500
 
+@app.route('/api/all-saved', methods=['GET'])
+def get_all_saved_articles():
+    try:
+        response = get_all_saved()
+        for dict in response: 
+            input_tag = f"<input value='{dict['url']}' style='width: auto; transform: scale(1.5);' type='checkbox' name='articleCheckBox' />\n"
+            for_email_html = dict['content'].replace(input_tag, "")
+
+            email_dict[dict['url']] = for_email_html
+
+        return jsonify({"status": "success", 
+                        "message": "got all saved articles",
+                        "html": "".join(article.get("content", "") for article in response)
+                        }), 200
+    except Exception as e:
+        print(str(e))
+        return jsonify({
+            'status': 'error fetching from database',
+            'message': str(e)
+        }), 500
+    
 @app.route('/api/search-database', methods=['POST'])
 def search_database():
     """Handle database search requests from frontend"""
@@ -176,9 +197,6 @@ def health_check():
         'status': 'healthy',
         'timestamp': datetime.now().isoformat()
     })
-
-def save_before_server_shutdown():
-    insert_to_supabase(list(json_dict.values()))
 
 def graceful_shutdown(sig, frame):
     insert_to_supabase(list(json_dict.values()))

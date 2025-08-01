@@ -8,7 +8,7 @@ year = now.year
 month = now.month
 day = now.day
 
-email_list = ['howlin1218@gmail.com']
+email_list = ['howlin1218@gmail.com', 'howardlin@msi.com']
 email_address = "howlin1218@gmail.com"
 searches = ['gaming desktop', 'pro desktop']
 a_limit = 1
