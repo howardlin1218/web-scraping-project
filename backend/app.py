@@ -20,7 +20,7 @@ except ImportError:
     print("Warning: Could not import some modules. Make sure database.py and automate_email.py exist.")
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend communication 
+CORS(app, origins=['https://howardlin1218.github.io/web-scraping-project'])  # Enable CORS for frontend communication 
 
 @app.route('/api/email-to-user', methods=['POST'])
 def email_to_user():
