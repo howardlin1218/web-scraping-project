@@ -4,9 +4,11 @@ const n_year = now.getFullYear();
 const n_month = now.getMonth() + 1;
 const n_day = now.getDate();
 // API Configuration
-const API_BASE_URL = 'http://127.0.0.1:5000/api';
+const API_BASE_URL = 'https://web-scraping-project-b9it.onrender.com/api';
+// const API_BASE_URL = 'http://127.0.0.1:5000/api'
 async function makeApiRequest_recent(endpoint) {
     const url = `${API_BASE_URL}${endpoint}`;
+    console.log(url);
     try {
         const response = await fetch(url, {
             method: 'GET',

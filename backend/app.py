@@ -5,6 +5,7 @@ from datetime import datetime
 import sys
 import signal
 import re
+import os
 
 comma_splitter = re.compile(r'\s*,\s*')
 now = datetime.now()
@@ -21,7 +22,7 @@ except ImportError:
 
 app = Flask(__name__)
 CORS(app, origins=['https://howardlin1218.github.io/web-scraping-project'])  # Enable CORS for frontend communication 
-
+# CORS(app)
 @app.route('/api/email-to-user', methods=['POST'])
 def email_to_user():
     try:
@@ -207,4 +208,4 @@ signal.signal(signal.SIGTERM, graceful_shutdown)
 
 if __name__ == '__main__':
     populate_fields()
-    app.run(debug=True, host='127.0.0.1', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))

@@ -34,8 +34,10 @@ interface ApiResponse {
 // API Configuration
 const API_BASE_URL = 'https://web-scraping-project-b9it.onrender.com/api';
 
+// const API_BASE_URL = 'http://127.0.0.1:5000/api'
 async function makeApiRequest_recent(endpoint: string): Promise<ApiResponse> {
     const url = `${API_BASE_URL}${endpoint}`;
+    console.log(url)
     try {
         const response = await fetch(url, {
             method: 'GET',
