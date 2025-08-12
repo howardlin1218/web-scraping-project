@@ -825,7 +825,7 @@ search_functions = [search_toms_hardware,
                     search_windows_central,
                     search_tech_radar]
 
-def search_all_sites(website_urls=website_urls, search_terms=search_terms, article_limit=1, word_limit=2500, filter_year=year, filter_month=month, filter_day=day, sites_to_search=[0], keywords=[]):
+def search_all_sites(website_urls=website_urls, search_terms=search_terms, article_limit=1, word_limit=5000, filter_year=year, filter_month=month, filter_day=day, sites_to_search=[0], keywords=[]):
     global pattern 
     pattern = keywords_pattern(keywords)
     i = 0
