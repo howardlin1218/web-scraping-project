@@ -120,7 +120,7 @@ def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms,
         i = 0
         params = {"searchTerm": search_terms[term],
                   "articleType": "all",
-                  "sortBy": "publishedDate"
+                  "sortBy": "relevance"
                   }
 
         response = requests.get(website_url, params=params, headers=headers)
@@ -826,7 +826,7 @@ def search_tech_radar(website_url=website_urls[7], search_terms=search_terms, ar
         i = 0
         params = {"searchTerm": search_terms[term],
                   "articleType": "all",
-                  "sortBy": "publishedDate"}
+                  "sortBy": "relevance"}
 
         response = requests.get(website_url, params=params, headers=headers)
         #print("Search URL:", response.url)
