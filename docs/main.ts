@@ -8,9 +8,12 @@ interface SearchValues {
     websites: string[];
     searchTerms: string;
     limit: number;
-    day: number;
-    month: number;
-    year: number;
+    day_from: number;
+    month_from: number;
+    year_from: number;
+    day_to: number; 
+    month_to: number; 
+    year_to: number;
     keywords: string;
 }
 
@@ -18,9 +21,12 @@ interface SearchValuesDatabase {
     websites: string[];
     searchTerms: string;
     limit: number;
-    day: number;
-    month: number;
-    year: number;
+    day_from: number;
+    month_from: number;
+    year_from: number;
+    day_to: number; 
+    month_to: number; 
+    year_to: number;
     keywords: string;
     urls: string;
 }
@@ -312,9 +318,12 @@ function getSiteSearchValues(): SearchValues {
         websites: websites || ["0"],
         searchTerms: (document.getElementById('search') as HTMLInputElement)?.value || "MSI Gaming",
         limit: Number((document.getElementById('amount') as HTMLInputElement)?.value) || 1,
-        day: Number((document.getElementById('day') as HTMLSelectElement)?.value) || n_day,
-        month: Number((document.getElementById('month') as HTMLSelectElement)?.value) || n_month,
-        year: Number((document.getElementById('year') as HTMLSelectElement)?.value) || n_year,
+        day_from: Number((document.getElementById('site-day-from') as HTMLSelectElement)?.value) || n_day,
+        month_from: Number((document.getElementById('site-month-from') as HTMLSelectElement)?.value) || n_month,
+        year_from: Number((document.getElementById('site-year-from') as HTMLSelectElement)?.value) || n_year,
+        day_to: Number((document.getElementById('site-day-to') as HTMLSelectElement)?.value) || n_day,
+        month_to: Number((document.getElementById('site-month-to') as HTMLSelectElement)?.value) || n_month,
+        year_to: Number((document.getElementById('site-year-to') as HTMLSelectElement)?.value) || n_year,
         keywords: (document.getElementById('keywords') as HTMLInputElement)?.value || ""
     };
 }
@@ -332,9 +341,12 @@ function getDatabaseSearchValues(): SearchValuesDatabase {
         websites: websites || ["Tom's Hardware"],
         searchTerms: (document.getElementById('database-search') as HTMLInputElement)?.value || "",
         limit: Number((document.getElementById('database-amount') as HTMLInputElement)?.value) || 0,
-        day: Number((document.getElementById('database-day') as HTMLSelectElement)?.value) || n_day,
-        month: Number((document.getElementById('database-month') as HTMLSelectElement)?.value) || n_month,
-        year: Number((document.getElementById('database-year') as HTMLSelectElement)?.value) || n_year,
+        day_from: Number((document.getElementById('database-day-from') as HTMLSelectElement)?.value) || n_day,
+        month_from: Number((document.getElementById('database-month-from') as HTMLSelectElement)?.value) || n_month,
+        year_from: Number((document.getElementById('database-year-from') as HTMLSelectElement)?.value) || n_year,
+        day_to: Number((document.getElementById('database-day-to') as HTMLSelectElement)?.value) || n_day,
+        month_to: Number((document.getElementById('database-month-to') as HTMLSelectElement)?.value) || n_month,
+        year_to: Number((document.getElementById('database-year-to') as HTMLSelectElement)?.value) || n_year,
         keywords: (document.getElementById('database-keywords') as HTMLInputElement)?.value || "",
         urls: (document.getElementById('database-urls') as HTMLInputElement)?.value || ""
     };

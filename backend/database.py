@@ -54,7 +54,7 @@ def get_all_saved():
         print(f"error: {e}")
         return 500
     
-def search_for_articles(websites, search_terms, limit, keywords, urls, day, month, year): 
+def search_for_articles(websites, search_terms, limit, keywords, urls, day_from, month_from, year_from, day_to, month_to, year_to): 
     try: 
         query = supabase.table("articles").select("content, url")
 

@@ -255,7 +255,7 @@ function clearArticles() {
 }
 // Function to get values from "Search a site" form
 function getSiteSearchValues() {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
     // Get all checked website checkboxes
     const websiteCheckboxes = document.querySelectorAll('input[name="websites"]:checked');
     const websites = Array.from(websiteCheckboxes).map(checkbox => checkbox.value);
@@ -263,15 +263,18 @@ function getSiteSearchValues() {
         websites: websites || ["0"],
         searchTerms: ((_a = document.getElementById('search')) === null || _a === void 0 ? void 0 : _a.value) || "MSI Gaming",
         limit: Number((_b = document.getElementById('amount')) === null || _b === void 0 ? void 0 : _b.value) || 1,
-        day: Number((_c = document.getElementById('day')) === null || _c === void 0 ? void 0 : _c.value) || n_day,
-        month: Number((_d = document.getElementById('month')) === null || _d === void 0 ? void 0 : _d.value) || n_month,
-        year: Number((_e = document.getElementById('year')) === null || _e === void 0 ? void 0 : _e.value) || n_year,
-        keywords: ((_f = document.getElementById('keywords')) === null || _f === void 0 ? void 0 : _f.value) || ""
+        day_from: Number((_c = document.getElementById('site-day-from')) === null || _c === void 0 ? void 0 : _c.value) || n_day,
+        month_from: Number((_d = document.getElementById('site-month-from')) === null || _d === void 0 ? void 0 : _d.value) || n_month,
+        year_from: Number((_e = document.getElementById('site-year-from')) === null || _e === void 0 ? void 0 : _e.value) || n_year,
+        day_to: Number((_f = document.getElementById('site-day-to')) === null || _f === void 0 ? void 0 : _f.value) || n_day,
+        month_to: Number((_g = document.getElementById('site-month-to')) === null || _g === void 0 ? void 0 : _g.value) || n_month,
+        year_to: Number((_h = document.getElementById('site-year-to')) === null || _h === void 0 ? void 0 : _h.value) || n_year,
+        keywords: ((_j = document.getElementById('keywords')) === null || _j === void 0 ? void 0 : _j.value) || ""
     };
 }
 // Function to get values from "Search database" form
 function getDatabaseSearchValues() {
-    var _a, _b, _c, _d, _e, _f, _g;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
     // Get all checked website checkboxes from database form
     const websiteCheckboxes = document.querySelectorAll('input[name="database-websites"]:checked');
     const websites = Array.from(websiteCheckboxes).map(checkbox => {
@@ -283,11 +286,14 @@ function getDatabaseSearchValues() {
         websites: websites || ["Tom's Hardware"],
         searchTerms: ((_a = document.getElementById('database-search')) === null || _a === void 0 ? void 0 : _a.value) || "",
         limit: Number((_b = document.getElementById('database-amount')) === null || _b === void 0 ? void 0 : _b.value) || 0,
-        day: Number((_c = document.getElementById('database-day')) === null || _c === void 0 ? void 0 : _c.value) || n_day,
-        month: Number((_d = document.getElementById('database-month')) === null || _d === void 0 ? void 0 : _d.value) || n_month,
-        year: Number((_e = document.getElementById('database-year')) === null || _e === void 0 ? void 0 : _e.value) || n_year,
-        keywords: ((_f = document.getElementById('database-keywords')) === null || _f === void 0 ? void 0 : _f.value) || "",
-        urls: ((_g = document.getElementById('database-urls')) === null || _g === void 0 ? void 0 : _g.value) || ""
+        day_from: Number((_c = document.getElementById('database-day-from')) === null || _c === void 0 ? void 0 : _c.value) || n_day,
+        month_from: Number((_d = document.getElementById('database-month-from')) === null || _d === void 0 ? void 0 : _d.value) || n_month,
+        year_from: Number((_e = document.getElementById('database-year-from')) === null || _e === void 0 ? void 0 : _e.value) || n_year,
+        day_to: Number((_f = document.getElementById('database-day-to')) === null || _f === void 0 ? void 0 : _f.value) || n_day,
+        month_to: Number((_g = document.getElementById('database-month-to')) === null || _g === void 0 ? void 0 : _g.value) || n_month,
+        year_to: Number((_h = document.getElementById('database-year-to')) === null || _h === void 0 ? void 0 : _h.value) || n_year,
+        keywords: ((_j = document.getElementById('database-keywords')) === null || _j === void 0 ? void 0 : _j.value) || "",
+        urls: ((_k = document.getElementById('database-urls')) === null || _k === void 0 ? void 0 : _k.value) || ""
     };
 }
 // function to send to email 

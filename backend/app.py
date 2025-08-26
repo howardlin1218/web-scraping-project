@@ -70,19 +70,22 @@ def search_site():
         websites = [int(x) for x in data.get('websites', ["0"])]
         search_terms = comma_splitter.split(data.get('searchTerms', ''))
         limit = data.get('limit')
-        day = data.get('day')
-        month = data.get('month')
-        year = data.get('year')
+        day_from = data.get('day_from')
+        month_from = data.get('month_from')
+        year_from = data.get('year_from')
+        day_to = data.get('day_to')
+        month_to = data.get('month_to')
+        year_to = data.get('year_to')
         keywords = data.get('keywords', [])
         
         if keywords != "":
-            keywords = keywords.strip().replace(" ", "").split(",")
+            keywords = [kw.strip() for kw in keywords.split(",") if kw.strip()]
         else: 
             keywords = []
         
         # Log the search request
         print(f"Site search request: {search_terms} on {len(websites)} websites: {websites}, limit:{limit}")
-        results_list = search_all_sites(search_terms=search_terms, article_limit=limit, filter_year=year, filter_month=month, filter_day=day, sites_to_search=websites, keywords=keywords)
+        results_list = search_all_sites(search_terms=search_terms, article_limit=limit, year_from=year_from, month_from=month_from, day_from=day_from, year_to=year_to, month_to=month_to, day_to=day_to, sites_to_search=websites, keywords=keywords)
                 
         return_str = construct_message(results_list=results_list)
         #save_to_file(return_str)
@@ -152,9 +155,12 @@ def search_database():
         limit = data.get('limit') # optional
         keywords = data.get('keywords') # optional
         urls = data.get('urls') # optional
-        day = data.get('day') # optional
-        month = data.get('month') # optional
-        year = data.get('year') # optional
+        day_from = data.get('day_from') # optional
+        month_from = data.get('month_from') # optional
+        year_from = data.get('year_from') # optional
+        day_to = data.get('day_from') # optional
+        month_to = data.get('month_from') # optional
+        year_to = data.get('year_from') # optional
 
         if keywords != "":
             keywords = keywords.strip().replace(" ", "").split(",")
@@ -177,7 +183,7 @@ def search_database():
 
         # Log the search request
         print(f"Database search request: matching titles with {search_terms} with limit of {limit}")
-        response = search_for_articles(websites, search_terms, limit, keywords, urls, day, month, year)
+        response = search_for_articles(websites, search_terms, limit, keywords, urls, day_from, month_from, year_from, day_to, month_to, year_to)
         # Here you can integrate with your existing database functions
         return jsonify({"status": "success", 
                         "message": "returning json",
