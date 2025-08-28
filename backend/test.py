@@ -124,7 +124,8 @@ def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms,
                   }
 
         response = requests.get(website_url, params=params, headers=headers)
-        #print("Search URL:", response.url)
+        # print(search_terms[term])
+        # print("Search URL:", response.url)
     
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, "html.parser")
@@ -166,28 +167,30 @@ def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms,
                             if months[parsed_date[1].lower()] == month_from:
                                 if int(parsed_date[0]) < day_from:
                                     continue
-
+                    # print(year_to, month_to, day_to)
                     if parsed_date[-1] != 'ago':  
-                        if int("20"+parsed_date[-1]) > year_to:
+                        if int("20"+parsed_date[-1]) > year_to and year_to != 0:
                             continue
                         if int("20"+parsed_date[-1]) == year_to:
-                            if months[parsed_date[1].lower()] > month_to:
+                            if months[parsed_date[1].lower()] > month_to and month_to != 0:
                                 continue
                         if int("20"+parsed_date[-1]) == year_to:
                             if months[parsed_date[1].lower()] == month_to:
-                                if int(parsed_date[0]) > day_to:
+                                if int(parsed_date[0]) > day_to and day_to != 0:
                                     continue
                         m_day = int(parsed_date[0])
                         m_month = months[parsed_date[1].lower()]
                         m_year = int("20"+parsed_date[-1])
                     
                     response = requests.get(link, headers=headers)
+                    # print(link)
                     if response.status_code == 200:
                         opened_article = BeautifulSoup(response.text, "html.parser")
                         article_body = opened_article.find("div", id="article-body")
                         article_paragraphs = article_body.find_all("p")
                         for article_paragraph in article_paragraphs:
                             current_article_text += (article_paragraph.get_text(strip=True) + ' ')
+                        # print(len(current_article_text.lower().split()))
                         if len(current_article_text.lower().split()) > word_limit:
                             continue
                         matched = match_keywords(current_article_text)
@@ -198,9 +201,6 @@ def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms,
                                                               title, 
                                                               author, 
                                                               publish_date,
-                                                              m_day, 
-                                                              m_month, 
-                                                              m_year,
                                                               publish_date_formatted]
                             i += 1
                             at_least_one_article = True
@@ -208,7 +208,7 @@ def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms,
                         #print(f"link: {link} did not work. (status code: {response.status_code})")
                         pass
                 else:
-                    #print(f"Limit reached, {article_limit} articles displayed.\n")
+                    # print(f"Limit reached, {article_limit} articles displayed.\n")
                     break
             if not at_least_one_article:
                 #print(f"No articles found within {word_limit} word limit.\n")
@@ -273,14 +273,14 @@ def search_pc_mag(website_url=website_urls[1], search_terms=search_terms, articl
                                     continue
                     
                     if parsed_date[-1] != 'ago': 
-                        if int(parsed_date[-1]) > year_to:
+                        if int(parsed_date[-1]) > year_to and year_to != 0:
                             continue
                         if int(parsed_date[-1]) == year_to:
-                            if int(parsed_date[0]) > month_to:
+                            if int(parsed_date[0]) > month_to and month_to != 0:
                                 continue
                         if int(parsed_date[-1]) == year_to:
                             if int(parsed_date[0]) == month_to:
-                                if int(parsed_date[1]) > day_to:
+                                if int(parsed_date[1]) > day_to and day_to != 0:
                                     continue
                         m_day = int(parsed_date[1])
                         m_month = int(parsed_date[0]) 
@@ -317,9 +317,6 @@ def search_pc_mag(website_url=website_urls[1], search_terms=search_terms, articl
                                                             title,
                                                             author,
                                                             publish_date,
-                                                            m_day,
-                                                            m_month,
-                                                            m_year,
                                                             publish_date_formatted]
                             i += 1
                             at_least_one_article = True
@@ -386,14 +383,14 @@ def search_the_pc_enthusiast(website_url=website_urls[2], search_terms=search_te
                                     continue
 
                     if parsed_date[-1] != 'ago': 
-                        if int(parsed_date[-1]) > year_to:
+                        if int(parsed_date[-1]) > year_to and year_to != 0:
                             continue
                         if int(parsed_date[-1]) == year_to:
-                            if months[parsed_date[0].lower()] > month_to:
+                            if months[parsed_date[0].lower()] > month_to and month_to != 0:
                                 continue
                         if int(parsed_date[-1]) == year_to:
                             if months[parsed_date[0].lower()] == month_to:
-                                if int(parsed_date[1]) > day_to:
+                                if int(parsed_date[1]) > day_to and day_to != 0:
                                     continue
                         m_day = int(parsed_date[1]) 
                         m_month = months[parsed_date[0].lower()]
@@ -419,9 +416,6 @@ def search_the_pc_enthusiast(website_url=website_urls[2], search_terms=search_te
                                                         title,
                                                         author,
                                                         publish_date,
-                                                        m_day, 
-                                                        m_month, 
-                                                        m_year,
                                                         publish_date_formatted]
                             i += 1
                             at_least_one_article = True
@@ -485,14 +479,14 @@ def search_hothardware(website_url=website_urls[3], search_terms=search_terms, a
                                     continue
                         
                     if parsed_date[-1] != 'ago': 
-                        if int(parsed_date[-1]) > year_to:
+                        if int(parsed_date[-1]) > year_to and year_to != 0:
                             continue
                         if int(parsed_date[-1]) == year_to:
-                            if months[parsed_date[1].lower()] > month_to:
+                            if months[parsed_date[1].lower()] > month_to and month_to != 0:
                                 continue
                         if int(parsed_date[-1]) == year_to:
                             if months[parsed_date[1].lower()] == month_to:
-                                if int(parsed_date[2]) > day_to:
+                                if int(parsed_date[2]) > day_to and day_to != 0:
                                     continue
                         m_day = int(parsed_date[2])
                         m_month = months[parsed_date[1].lower()]
@@ -514,10 +508,7 @@ def search_hothardware(website_url=website_urls[3], search_terms=search_terms, a
                                                         matched, 
                                                         title, 
                                                         author, 
-                                                        publish_date, 
-                                                        m_day, 
-                                                        m_month, 
-                                                        m_year,
+                                                        publish_date,
                                                         publish_date_formatted]
                             i += 1
                             at_least_one_article = True
@@ -581,14 +572,14 @@ def search_pc_perspective(website_url=website_urls[4], search_terms=search_terms
                                     continue
                     
                     if parsed_date[-1] != 'ago': 
-                        if int(parsed_date[-1]) > year_to:
+                        if int(parsed_date[-1]) > year_to and year_to != 0:
                             continue
                         if int(parsed_date[-1]) == year_to:
-                            if months[parsed_date[0].lower()] > month_to:
+                            if months[parsed_date[0].lower()] > month_to and month_to != 0:
                                 continue
                         if int(parsed_date[-1]) == year_to:
                             if months[parsed_date[0].lower()] == month_to:
-                                if int(parsed_date[1]) > day_to:
+                                if int(parsed_date[1]) > day_to and day_to != 0:
                                     continue
                         m_day = int(parsed_date[1])
                         m_month = months[parsed_date[0].lower()]
@@ -614,10 +605,7 @@ def search_pc_perspective(website_url=website_urls[4], search_terms=search_terms
                                                         matched, 
                                                         title, 
                                                         author, 
-                                                        publish_date, 
-                                                        m_day, 
-                                                        m_month, 
-                                                        m_year,
+                                                        publish_date,
                                                         publish_date_formatted]
                             i += 1
                             at_least_one_article = True
@@ -681,14 +669,14 @@ def search_gamerant(website_url=website_urls[5], search_terms=search_terms, arti
                                     continue
 
                     if parsed_date[-1] != 'ago': 
-                        if int(parsed_date[-1]) > year_to:
+                        if int(parsed_date[-1]) > year_to and year_to != 0:
                             continue
                         if int(parsed_date[-1]) == year_to:
-                            if months[parsed_date[0].lower()] > month_to:
+                            if months[parsed_date[0].lower()] > month_to and month_to != 0:
                                 continue
                         if int(parsed_date[-1]) == year_to:
                             if months[parsed_date[0].lower()] == month_to:
-                                if int(parsed_date[1]) > day_to:
+                                if int(parsed_date[1]) > day_to and day_to != 0:
                                     continue
                         m_day = int(parsed_date[1])
                         m_month = months[parsed_date[0].lower()]
@@ -714,10 +702,7 @@ def search_gamerant(website_url=website_urls[5], search_terms=search_terms, arti
                                                         matched, 
                                                         title, 
                                                         author, 
-                                                        publish_date, 
-                                                        m_day, 
-                                                        m_month, 
-                                                        m_year,
+                                                        publish_date,
                                                         publish_date_formatted]
                             i += 1
                             at_least_one_article = True
@@ -782,14 +767,14 @@ def search_windows_central(website_url=website_urls[6], search_terms=search_term
                                     continue
 
                     if parsed_date[-1] != 'ago': 
-                        if int("20" + parsed_date[-1]) > year_to:
+                        if int("20" + parsed_date[-1]) > year_to and year_to != 0:
                             continue
                         if int("20" + parsed_date[-1]) == year_to:
-                            if months[parsed_date[1].lower()] > month_to:
+                            if months[parsed_date[1].lower()] > month_to and month_to != 0:
                                 continue
                         if int("20" + parsed_date[-1]) == year_to:
                             if months[parsed_date[1].lower()] == month_to:
-                                if int(parsed_date[0]) > day_to:
+                                if int(parsed_date[0]) > day_to and day_to != 0:
                                     continue
 
                         m_day = int(parsed_date[0]) 
@@ -816,10 +801,7 @@ def search_windows_central(website_url=website_urls[6], search_terms=search_term
                                                         matched, 
                                                         title, 
                                                         author, 
-                                                        publish_date, 
-                                                        m_day, 
-                                                        m_month,
-                                                        m_year,
+                                                        publish_date,
                                                         publish_date_formatted]
                             i += 1
                             at_least_one_article = True
@@ -885,14 +867,14 @@ def search_tech_radar(website_url=website_urls[7], search_terms=search_terms, ar
                                     continue
 
                     if parsed_date[-1] != 'ago': 
-                        if int("20"+parsed_date[-1]) > year_to:
+                        if int("20"+parsed_date[-1]) > year_to and year_to != 0:
                             continue
                         if int("20"+parsed_date[-1]) == year_to:
-                            if months[parsed_date[1].lower()] > month_to:
+                            if months[parsed_date[1].lower()] > month_to and month_to != 0:
                                 continue
                         if int(parsed_date[-1]) == year_to:
                             if months[parsed_date[1].lower()] == month_to:
-                                if int(parsed_date[0]) > day_to:
+                                if int(parsed_date[0]) > day_to and day_to != 0:
                                     continue
 
                         m_day = int(parsed_date[0])
@@ -918,10 +900,7 @@ def search_tech_radar(website_url=website_urls[7], search_terms=search_terms, ar
                                                         matched, 
                                                         title, 
                                                         author, 
-                                                        publish_date, 
-                                                        m_day, 
-                                                        m_month, 
-                                                        m_year,
+                                                        publish_date,
                                                         publish_date_formatted]
                             i += 1
                             at_least_one_article = True
@@ -945,7 +924,7 @@ search_functions = [search_toms_hardware,
                     search_windows_central,
                     search_tech_radar]
 
-def search_all_sites(website_urls=website_urls, search_terms=search_terms, article_limit=1, word_limit=2500, year_from=year, month_from=month, day_from=day , day_to=day, month_to=month, year_to=year, sites_to_search=[0], keywords=[]):
+def search_all_sites(website_urls=website_urls, search_terms=search_terms, article_limit=1, word_limit=7500, year_from=year, month_from=month, day_from=day , day_to=day, month_to=month, year_to=year, sites_to_search=[0], keywords=[]):
     # global pattern 
     global kws
     # pattern = keywords_pattern(keywords)

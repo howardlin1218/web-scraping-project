@@ -260,22 +260,22 @@ function getSiteSearchValues() {
     // Get all checked website checkboxes
     const websiteCheckboxes = document.querySelectorAll('input[name="websites"]:checked');
     const websites = Array.from(websiteCheckboxes).map(checkbox => checkbox.value);
-    console.log(Number(document.getElementById('site-day-from').value) || n_day);
-    console.log(Number(document.getElementById('site-month-from').value) || n_month);
-    console.log(Number(document.getElementById('site-year-from').value) || n_year);
-    console.log(Number(document.getElementById('site-day-to').value) || n_day);
-    console.log(Number(document.getElementById('site-month-to').value) || n_month);
-    console.log(Number(document.getElementById('site-year-to').value) || n_day);
+    // console.log(Number((document.getElementById('site-day-from') as HTMLSelectElement).value) || n_day)
+    // console.log(Number((document.getElementById('site-month-from') as HTMLSelectElement).value) || n_month)
+    // console.log(Number((document.getElementById('site-year-from') as HTMLSelectElement).value) || n_year)
+    // console.log(Number((document.getElementById('site-day-to') as HTMLSelectElement).value) || n_day)
+    // console.log(Number((document.getElementById('site-month-to') as HTMLSelectElement).value) || n_month)
+    // console.log(Number((document.getElementById('site-year-to') as HTMLSelectElement).value) || n_day)
     return {
         websites: websites || ["0"],
-        searchTerms: ((_a = document.getElementById('search')) === null || _a === void 0 ? void 0 : _a.value) || "MSI Gaming",
+        searchTerms: ((_a = document.getElementById('search')) === null || _a === void 0 ? void 0 : _a.value) || "MSI",
         limit: Number((_b = document.getElementById('amount')) === null || _b === void 0 ? void 0 : _b.value) || 1,
-        day_from: Number((_c = document.getElementById('site-day-from')) === null || _c === void 0 ? void 0 : _c.value) || n_day,
-        month_from: Number((_d = document.getElementById('site-month-from')) === null || _d === void 0 ? void 0 : _d.value) || n_month,
-        year_from: Number((_e = document.getElementById('site-year-from')) === null || _e === void 0 ? void 0 : _e.value) || n_year,
-        day_to: Number((_f = document.getElementById('site-day-to')) === null || _f === void 0 ? void 0 : _f.value) || n_day,
-        month_to: Number((_g = document.getElementById('site-month-to')) === null || _g === void 0 ? void 0 : _g.value) || n_month,
-        year_to: Number((_h = document.getElementById('site-year-to')) === null || _h === void 0 ? void 0 : _h.value) || n_year,
+        day_from: Number((_c = document.getElementById('site-day-from')) === null || _c === void 0 ? void 0 : _c.value) || 0,
+        month_from: Number((_d = document.getElementById('site-month-from')) === null || _d === void 0 ? void 0 : _d.value) || 0,
+        year_from: Number((_e = document.getElementById('site-year-from')) === null || _e === void 0 ? void 0 : _e.value) || 0,
+        day_to: Number((_f = document.getElementById('site-day-to')) === null || _f === void 0 ? void 0 : _f.value) || 0,
+        month_to: Number((_g = document.getElementById('site-month-to')) === null || _g === void 0 ? void 0 : _g.value) || 0,
+        year_to: Number((_h = document.getElementById('site-year-to')) === null || _h === void 0 ? void 0 : _h.value) || 0,
         keywords: ((_j = document.getElementById('keywords')) === null || _j === void 0 ? void 0 : _j.value) || ""
     };
 }
@@ -291,7 +291,7 @@ function getDatabaseSearchValues() {
     });
     return {
         websites: websites || ["Tom's Hardware"],
-        searchTerms: ((_a = document.getElementById('database-search')) === null || _a === void 0 ? void 0 : _a.value) || "",
+        searchTerms: ((_a = document.getElementById('database-search')) === null || _a === void 0 ? void 0 : _a.value) || "MSI",
         limit: Number((_b = document.getElementById('database-amount')) === null || _b === void 0 ? void 0 : _b.value) || 0,
         day_from: Number((_c = document.getElementById('database-day-from')) === null || _c === void 0 ? void 0 : _c.value) || 0,
         month_from: Number((_d = document.getElementById('database-month-from')) === null || _d === void 0 ? void 0 : _d.value) || 0,
@@ -696,7 +696,6 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 const response = await makeApiRequest_recent('/recent-saves');
                 if (response.status === 'success') {
-                    alert("Sucessfully requested");
                     displayResults(response);
                 }
                 else {
@@ -723,7 +722,6 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 const response = await makeApiRequest_recent('/all-saved');
                 if (response.status === 'success') {
-                    alert("Sucessfully requested");
                     displayResults(response);
                 }
                 else {

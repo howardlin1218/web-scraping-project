@@ -315,22 +315,22 @@ function getSiteSearchValues(): SearchValues {
     const websiteCheckboxes = document.querySelectorAll('input[name="websites"]:checked') as NodeListOf<HTMLInputElement>;
     const websites = Array.from(websiteCheckboxes).map(checkbox => checkbox.value);
 
-    console.log(Number((document.getElementById('site-day-from') as HTMLSelectElement).value) || n_day)
-    console.log(Number((document.getElementById('site-month-from') as HTMLSelectElement).value) || n_month)
-    console.log(Number((document.getElementById('site-year-from') as HTMLSelectElement).value) || n_year)
-    console.log(Number((document.getElementById('site-day-to') as HTMLSelectElement).value) || n_day)
-    console.log(Number((document.getElementById('site-month-to') as HTMLSelectElement).value) || n_month)
-    console.log(Number((document.getElementById('site-year-to') as HTMLSelectElement).value) || n_day)
+    // console.log(Number((document.getElementById('site-day-from') as HTMLSelectElement).value) || n_day)
+    // console.log(Number((document.getElementById('site-month-from') as HTMLSelectElement).value) || n_month)
+    // console.log(Number((document.getElementById('site-year-from') as HTMLSelectElement).value) || n_year)
+    // console.log(Number((document.getElementById('site-day-to') as HTMLSelectElement).value) || n_day)
+    // console.log(Number((document.getElementById('site-month-to') as HTMLSelectElement).value) || n_month)
+    // console.log(Number((document.getElementById('site-year-to') as HTMLSelectElement).value) || n_day)
     return {
         websites: websites || ["0"],
-        searchTerms: (document.getElementById('search') as HTMLInputElement)?.value || "MSI Gaming",
+        searchTerms: (document.getElementById('search') as HTMLInputElement)?.value || "MSI",
         limit: Number((document.getElementById('amount') as HTMLInputElement)?.value) || 1,
-        day_from: Number((document.getElementById('site-day-from') as HTMLSelectElement)?.value) || n_day,
-        month_from: Number((document.getElementById('site-month-from') as HTMLSelectElement)?.value) || n_month,
-        year_from: Number((document.getElementById('site-year-from') as HTMLSelectElement)?.value) || n_year,
-        day_to: Number((document.getElementById('site-day-to') as HTMLSelectElement)?.value) || n_day,
-        month_to: Number((document.getElementById('site-month-to') as HTMLSelectElement)?.value) || n_month,
-        year_to: Number((document.getElementById('site-year-to') as HTMLSelectElement)?.value) || n_year,
+        day_from: Number((document.getElementById('site-day-from') as HTMLSelectElement)?.value) || 0,
+        month_from: Number((document.getElementById('site-month-from') as HTMLSelectElement)?.value) || 0,
+        year_from: Number((document.getElementById('site-year-from') as HTMLSelectElement)?.value) || 0,
+        day_to: Number((document.getElementById('site-day-to') as HTMLSelectElement)?.value) || 0,
+        month_to: Number((document.getElementById('site-month-to') as HTMLSelectElement)?.value) || 0,
+        year_to: Number((document.getElementById('site-year-to') as HTMLSelectElement)?.value) || 0,
         keywords: (document.getElementById('keywords') as HTMLInputElement)?.value || ""
     };
 }
@@ -346,7 +346,7 @@ function getDatabaseSearchValues(): SearchValuesDatabase {
 
     return {
         websites: websites || ["Tom's Hardware"],
-        searchTerms: (document.getElementById('database-search') as HTMLInputElement)?.value || "",
+        searchTerms: (document.getElementById('database-search') as HTMLInputElement)?.value || "MSI",
         limit: Number((document.getElementById('database-amount') as HTMLInputElement)?.value) || 0,
         day_from: Number((document.getElementById('database-day-from') as HTMLSelectElement)?.value) || 0,
         month_from: Number((document.getElementById('database-month-from') as HTMLSelectElement)?.value) || 0,
@@ -784,7 +784,6 @@ document.addEventListener('DOMContentLoaded', function(): void {
             try {
                 const response = await makeApiRequest_recent('/recent-saves');
                 if (response.status === 'success') {
-                    alert("Sucessfully requested");
                     displayResults(response);
                 } else {
                     alert(`Error: ${response.message}`);
@@ -811,7 +810,6 @@ document.addEventListener('DOMContentLoaded', function(): void {
             try {
                 const response = await makeApiRequest_recent('/all-saved');
                 if (response.status === 'success') {
-                    alert("Sucessfully requested");
                     displayResults(response);
                 } else {
                     alert(`Error: ${response.message}`);

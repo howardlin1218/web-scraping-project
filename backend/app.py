@@ -7,7 +7,7 @@ import signal
 import re
 import os
 
-comma_splitter = re.compile(r'\s*,\s*')
+comma_splitter = re.compile(r'\s*\|\\s*')
 now = datetime.now()
 d_year = now.year 
 d_month = now.month
@@ -68,15 +68,15 @@ def search_site():
         
         # Extract search parameters
         websites = [int(x) for x in data.get('websites', ["0"])]
-        search_terms = comma_splitter.split(data.get('searchTerms', ''))
-        limit = data.get('limit')
-        day_from = data.get('day_from')
-        month_from = data.get('month_from')
-        year_from = data.get('year_from')
-        day_to = data.get('day_to')
-        month_to = data.get('month_to')
-        year_to = data.get('year_to')
-        keywords = data.get('keywords', [])
+        search_terms = data.get('searchTerms', "MSI")
+        limit = data.get('limit', 1)
+        day_from = data.get('day_from', 0)
+        month_from = data.get('month_from', 0)
+        year_from = data.get('year_from', 0)
+        day_to = data.get('day_to', 0)
+        month_to = data.get('month_to', 0)
+        year_to = data.get('year_to', 0)
+        keywords = data.get('keywords', "")
 
         # print("day from: ", day_from)
         # print("month from: ", month_from)
@@ -86,11 +86,16 @@ def search_site():
         # print("month to: ", month_to)
         # print("year to: ", year_to)
         
-        if keywords != "":
+        if keywords:
             keywords = [kw.strip() for kw in keywords.split(",") if kw.strip()]
         else: 
             keywords = []
         
+        if search_terms:
+            search_terms = [kw.strip() for kw in search_terms.split("|") if kw.strip()]
+        else: 
+            search_terms = []
+
         # Log the search request
         print(f"Site search request: {search_terms} on {len(websites)} websites: {websites}, limit:{limit}")
         results_list = search_all_sites(search_terms=search_terms, article_limit=limit, year_from=year_from, month_from=month_from, day_from=day_from, year_to=year_to, month_to=month_to, day_to=day_to, sites_to_search=websites, keywords=keywords)
@@ -158,25 +163,25 @@ def search_database():
         data = request.get_json()
         
         # Extract search parameters
-        websites = data.get('websites') # required
-        search_terms = comma_splitter.split(data.get('searchTerms', ''))
-        limit = data.get('limit') # optional
-        keywords = data.get('keywords') # optional
-        urls = data.get('urls') # optional
-        day_from = data.get('day_from') # optional
-        month_from = data.get('month_from') # optional
-        year_from = data.get('year_from') # optional
-        day_to = data.get('day_from') # optional
-        month_to = data.get('month_from') # optional
-        year_to = data.get('year_from') # optional
+        websites = data.get('websites', ["Tom's Hardware"]) # required
+        search_terms = data.get('searchTerms', "MSI")
+        limit = data.get('limit', 0) # optional
+        keywords = data.get('keywords', "") # optional
+        urls = data.get('urls', "") # optional
+        day_from = data.get('day_from', 0) # optional
+        month_from = data.get('month_from', 0) # optional
+        year_from = data.get('year_from', 0) # optional
+        day_to = data.get('day_to', 0) # optional
+        month_to = data.get('month_to', 0) # optional
+        year_to = data.get('year_to', 0) # optional
 
-        print("day from: ", day_from)
-        print("month from: ", month_from)
-        print("year from: ", year_from)
+        # print("day from: ", day_from)
+        # print("month from: ", month_from)
+        # print("year from: ", year_from)
 
-        print("day to: ", day_to)
-        print("month to: ", month_to)
-        print("year to: ", year_to)
+        # print("day to: ", day_to)
+        # print("month to: ", month_to)
+        # print("year to: ", year_to)
 
         start_date = 0
         end_date = 0
@@ -186,9 +191,9 @@ def search_database():
         if year_to != 0 and month_to != 0 and day_to != 0:  
             end_date = f"{year_to}-{month_to:02}-{day_to:02}"
         
-        print(start_date, end_date)
+        # print(start_date, end_date)
         if keywords != "":
-            keywords = keywords.strip().replace(" ", "").split(",")
+            keywords = [kw.strip() for kw in keywords.split(",") if kw.strip()]
         else: 
             keywords = []
 
