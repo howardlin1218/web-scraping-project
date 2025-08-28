@@ -192,6 +192,7 @@ def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms,
                             continue
                         matched = match_keywords(current_article_text)
                         if len(matched) != 0:
+                            publish_date_formatted = f"{m_year}-{m_month:02}-{m_day:02}"
                             matched_article_metadata[link] = [current_article_text, 
                                                               matched, 
                                                               title, 
@@ -199,7 +200,8 @@ def search_toms_hardware(website_url=website_urls[0], search_terms=search_terms,
                                                               publish_date,
                                                               m_day, 
                                                               m_month, 
-                                                              m_year]
+                                                              m_year,
+                                                              publish_date_formatted]
                             i += 1
                             at_least_one_article = True
                     else:
@@ -309,6 +311,7 @@ def search_pc_mag(website_url=website_urls[1], search_terms=search_terms, articl
                             continue
                         matched = match_keywords(current_article_text)
                         if len(matched) != 0:
+                            publish_date_formatted = f"{m_year}-{m_month:02}-{m_day:02}"
                             matched_article_metadata[link] = [current_article_text, 
                                                             matched, 
                                                             title,
@@ -316,7 +319,8 @@ def search_pc_mag(website_url=website_urls[1], search_terms=search_terms, articl
                                                             publish_date,
                                                             m_day,
                                                             m_month,
-                                                            m_year]
+                                                            m_year,
+                                                            publish_date_formatted]
                             i += 1
                             at_least_one_article = True
                     else:
@@ -409,6 +413,7 @@ def search_the_pc_enthusiast(website_url=website_urls[2], search_terms=search_te
                             continue
                         matched = match_keywords(current_article_text)
                         if len(matched) != 0:
+                            publish_date_formatted = f"{m_year}-{m_month:02}-{m_day:02}"
                             matched_article_metadata[link] = [current_article_text,
                                                         matched,
                                                         title,
@@ -416,7 +421,8 @@ def search_the_pc_enthusiast(website_url=website_urls[2], search_terms=search_te
                                                         publish_date,
                                                         m_day, 
                                                         m_month, 
-                                                        m_year]
+                                                        m_year,
+                                                        publish_date_formatted]
                             i += 1
                             at_least_one_article = True
                     else:
@@ -503,6 +509,7 @@ def search_hothardware(website_url=website_urls[3], search_terms=search_terms, a
                             continue
                         matched = match_keywords(current_article_text)
                         if len(matched) != 0:
+                            publish_date_formatted = f"{m_year}-{m_month:02}-{m_day:02}"
                             matched_article_metadata[link] = [current_article_text, 
                                                         matched, 
                                                         title, 
@@ -510,7 +517,8 @@ def search_hothardware(website_url=website_urls[3], search_terms=search_terms, a
                                                         publish_date, 
                                                         m_day, 
                                                         m_month, 
-                                                        m_year]
+                                                        m_year,
+                                                        publish_date_formatted]
                             i += 1
                             at_least_one_article = True
                     else:
@@ -601,6 +609,7 @@ def search_pc_perspective(website_url=website_urls[4], search_terms=search_terms
                             continue
                         matched = match_keywords(current_article_text)
                         if len(matched) != 0:
+                            publish_date_formatted = f"{m_year}-{m_month:02}-{m_day:02}"
                             matched_article_metadata[link] = [current_article_text, 
                                                         matched, 
                                                         title, 
@@ -608,7 +617,8 @@ def search_pc_perspective(website_url=website_urls[4], search_terms=search_terms
                                                         publish_date, 
                                                         m_day, 
                                                         m_month, 
-                                                        m_year]
+                                                        m_year,
+                                                        publish_date_formatted]
                             i += 1
                             at_least_one_article = True
                     else:
@@ -699,6 +709,7 @@ def search_gamerant(website_url=website_urls[5], search_terms=search_terms, arti
                             continue
                         matched = match_keywords(current_article_text)
                         if len(matched) != 0:
+                            publish_date_formatted = f"{m_year}-{m_month:02}-{m_day:02}"
                             matched_article_metadata[link] = [current_article_text, 
                                                         matched, 
                                                         title, 
@@ -706,7 +717,8 @@ def search_gamerant(website_url=website_urls[5], search_terms=search_terms, arti
                                                         publish_date, 
                                                         m_day, 
                                                         m_month, 
-                                                        m_year]
+                                                        m_year,
+                                                        publish_date_formatted]
                             i += 1
                             at_least_one_article = True
                     else:
@@ -799,6 +811,7 @@ def search_windows_central(website_url=website_urls[6], search_terms=search_term
                             continue
                         matched = match_keywords(current_article_text)
                         if len(matched) != 0:
+                            publish_date_formatted = f"{m_year}-{m_month:02}-{m_day:02}"
                             matched_article_metadata[link] = [current_article_text, 
                                                         matched, 
                                                         title, 
@@ -806,7 +819,8 @@ def search_windows_central(website_url=website_urls[6], search_terms=search_term
                                                         publish_date, 
                                                         m_day, 
                                                         m_month,
-                                                        m_year]
+                                                        m_year,
+                                                        publish_date_formatted]
                             i += 1
                             at_least_one_article = True
                     else:
@@ -899,6 +913,7 @@ def search_tech_radar(website_url=website_urls[7], search_terms=search_terms, ar
                             continue
                         matched = match_keywords(current_article_text)
                         if len(matched) != 0:
+                            publish_date_formatted = f"{m_year}-{m_month:02}-{m_day:02}"
                             matched_article_metadata[link] = [current_article_text, 
                                                         matched, 
                                                         title, 
@@ -906,7 +921,8 @@ def search_tech_radar(website_url=website_urls[7], search_terms=search_terms, ar
                                                         publish_date, 
                                                         m_day, 
                                                         m_month, 
-                                                        m_year]
+                                                        m_year,
+                                                        publish_date_formatted]
                             i += 1
                             at_least_one_article = True
                     else:
@@ -938,7 +954,7 @@ def search_all_sites(website_urls=website_urls, search_terms=search_terms, artic
     return_list = {}
     for website_url in website_urls:
         if i in sites_to_search:
-            return_list[website_url] = search_functions[i](website_url, search_terms, article_limit, word_limit, year_from, month_from, day_from, day_to, month_to, year_to)
+            return_list[website_url] = search_functions[i](website_url, search_terms, article_limit, word_limit, year_from, month_from, day_from, year_to,month_to, day_to)
         i += 1
         # site_data = search_functions[i](website_url, search_terms, article_limit, word_limit) # returns a dict, see below for structure
         # site_data = {"article link": ["article text", ["article keywords"], "article title", "article author(s)", "article publish date"], 

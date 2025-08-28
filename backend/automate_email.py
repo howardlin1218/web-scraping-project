@@ -21,6 +21,7 @@ partial_email_html = ""
 final_content_html = []
 json_dict = {}
 email_dict = {}
+keywords = ""
 website_urls = {"https://www.tomshardware.com/search": "Tom's Hardware",
                 "https://www.pcmag.com/search/results": "PC Mag",
                 "https://thepcenthusiast.com/": "The PC Enthusiast",
@@ -79,11 +80,12 @@ def convert_response_to_html_list_sentiment(bullet_list_response):
 <div class="sentiment-section" style='display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;'>\n
 \n{rows}\n"""
 
-def construct_message(email_content=email_content, results_list=results_list):
+def construct_message(email_content=email_content, results_list=results_list, keywords=[]):
     # construct the message 
     partial_email_html = ""
     if results_list is None: 
         return ""
+    kws = ', '.join(keywords) if keywords else ''
     for website_url, website_articles in results_list.items():
         for article_url, metadata in website_articles.items(): 
             llm_response_summary = ""
@@ -93,7 +95,7 @@ def construct_message(email_content=email_content, results_list=results_list):
                 messages=[
                 {
                     "role": "user",
-                    "content": f"Summarize the following review/article, focusing on brand mentions, performance mentions, price, how it compares to other brands (if applicable) and other general information in about 7 bullet points (use * to represent bullet points). If something specified wasn't mentioned, don't mention that it wasn't mentioned in your response. I just want the summary and analysis without any greeting or response prompt like 'Here are 5 bullet points summarizing the article:'. Perform the tasks described on the following article: \n{metadata[0]}" 
+                    "content": f"With an emphasis on the presence and mentions of the following keywords denoted inside the quotation marks: '{kws}' (unless no keywords), summarize the following review/article, focusing on brand mentions, performance mentions, price, how it compares to other brands mentioned in the article (if applicable) and other general information in about 7 bullet points (use * to represent bullet points).  If something specified wasn't mentioned, don't mention that it wasn't mentioned in your response. I just want the summary and analysis without any greeting or response prompt like 'Here are 5 bullet points summarizing the article:'. Perform the tasks described on the following article: \n{metadata[0]}" 
                 }
                 ],
                 temperature=0.1,
@@ -112,7 +114,7 @@ def construct_message(email_content=email_content, results_list=results_list):
                 messages=[
                 {
                     "role": "user",
-                    "content": f"I want a sentiment analysis of the following review/article, focusing on positive, neutral, and negative sentiments. Use bullet points (*) to represent the three categories of Positive/Neutral/Negative, and within those categories, use dash (-) to represent the content of that category. Basically, the structure of your response should just be 3 bullet points (*) for each of Positive/Neutral/Negative, and a list inside each category represented by dashes (-) that show the actual sentiments. I just want the analysis without any greeting or response prompt like 'Here is the sentiment analysis'. Perform the tasks described on the following article: \n{metadata[0]}" 
+                    "content": f"With an emphasis on the presence and mentions of the following keywords denoted inside the quotation marks: '{kws}' (unless no keywords), I want a sentiment analysis of the following review/article, focusing on positive, neutral, and negative sentiments. Use bullet points (*) to represent the three categories of Positive/Neutral/Negative, and within those categories, use dash (-) to represent the content of that category. Basically, the structure of your response should just be 3 bullet points (*) for each of Positive/Neutral/Negative, and a list inside each category represented by dashes (-) that show the actual sentiments. I just want the analysis without any greeting or response prompt like 'Here is the sentiment analysis'. Perform the tasks described on the following article: \n{metadata[0]}" 
                 }
                 ],
                 temperature=0.1,
@@ -139,7 +141,7 @@ def construct_message(email_content=email_content, results_list=results_list):
             current_article_html = f"<div class='article-container' style='margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;'>\n<section class='article-analysis' style='font-family: Arial, sans-serif; padding: 1rem; background-color: #f9f9f9;'>\n<input value='{article_url}' style='width: auto; transform: scale(1.5);' type='checkbox' name='articleCheckBox' />\n" + current_article_html+ "</section>\n</div>\n"
             
             # for database
-            json_dict[article_url] = {"website": website_urls[website_url], "title": metadata[2], "author": metadata[3], "published": metadata[4], "keywords": (", ".join(metadata[1]) if metadata[1] else ""), "url": article_url, "content": current_article_html, "day": metadata[5], "month": metadata[6], "year":metadata[7]}
+            json_dict[article_url] = {"website": website_urls[website_url], "title": metadata[2], "author": metadata[3], "published": metadata[4], "keywords": (", ".join(metadata[1]) if metadata[1] else ""), "url": article_url, "content": current_article_html, "day": metadata[5], "month": metadata[6], "year":metadata[7], "published_date": metadata[8]}
 
             # full article list html - for email
             partial_email_html += current_article_html
@@ -274,7 +276,7 @@ def save_to_file(email_content_html):
 
 def send_email(email_content_html, email_address, recipient_emails):
     msg = MIMEMultipart("alternative")
-    msg['Subject'] = "Daily Summary"
+    msg['Subject'] = "Article Summary"
     msg['From'] = email_address
     msg['To'] = ", ".join(recipient_emails)
     msg.attach(MIMEText(email_content_html, "html"))

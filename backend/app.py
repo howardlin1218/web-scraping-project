@@ -21,8 +21,8 @@ except ImportError:
     print("Warning: Could not import some modules. Make sure database.py and automate_email.py exist.")
 
 app = Flask(__name__)
-CORS(app, origins=['https://article-summarizer-4lcw.onrender.com'], supports_credentials=True)  # Enable CORS for frontend communication 
-# CORS(app)
+# CORS(app, origins=['https://article-summarizer-4lcw.onrender.com'], supports_credentials=True)  # Enable CORS for frontend communication 
+CORS(app)
 @app.route('/api/email-to-user', methods=['POST'])
 def email_to_user():
     try:
@@ -77,6 +77,14 @@ def search_site():
         month_to = data.get('month_to')
         year_to = data.get('year_to')
         keywords = data.get('keywords', [])
+
+        # print("day from: ", day_from)
+        # print("month from: ", month_from)
+        # print("year from: ", year_from)
+
+        # print("day to: ", day_to)
+        # print("month to: ", month_to)
+        # print("year to: ", year_to)
         
         if keywords != "":
             keywords = [kw.strip() for kw in keywords.split(",") if kw.strip()]
@@ -162,6 +170,23 @@ def search_database():
         month_to = data.get('month_from') # optional
         year_to = data.get('year_from') # optional
 
+        print("day from: ", day_from)
+        print("month from: ", month_from)
+        print("year from: ", year_from)
+
+        print("day to: ", day_to)
+        print("month to: ", month_to)
+        print("year to: ", year_to)
+
+        start_date = 0
+        end_date = 0
+        if year_from != 0 and month_from != 0 and day_from != 0:
+            start_date = f"{year_from}-{month_from:02}-{day_from:02}"
+
+        if year_to != 0 and month_to != 0 and day_to != 0:  
+            end_date = f"{year_to}-{month_to:02}-{day_to:02}"
+        
+        print(start_date, end_date)
         if keywords != "":
             keywords = keywords.strip().replace(" ", "").split(",")
         else: 
@@ -183,7 +208,7 @@ def search_database():
 
         # Log the search request
         print(f"Database search request: matching titles with {search_terms} with limit of {limit}")
-        response = search_for_articles(websites, search_terms, limit, keywords, urls, day_from, month_from, year_from, day_to, month_to, year_to)
+        response = search_for_articles(websites, search_terms, limit, keywords, urls, start_date, end_date)
         # Here you can integrate with your existing database functions
         return jsonify({"status": "success", 
                         "message": "returning json",
@@ -214,4 +239,6 @@ signal.signal(signal.SIGTERM, graceful_shutdown)
 
 if __name__ == '__main__':
     populate_fields()
-    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+    # app.run(debug=False, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+
+    app.run(debug=True, host='127.0.0.1', port=5000) 

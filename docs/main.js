@@ -4,8 +4,8 @@ const n_year = now.getFullYear();
 const n_month = now.getMonth() + 1;
 const n_day = now.getDate();
 // API Configuration
-const API_BASE_URL = 'https://article-summarizer-backend-wr47.onrender.com/api';
-// const API_BASE_URL = 'http://127.0.0.1:5000/api'
+// const API_BASE_URL = 'https://article-summarizer-backend-wr47.onrender.com/api';
+const API_BASE_URL = 'http://127.0.0.1:5000/api';
 async function makeApiRequest_recent(endpoint) {
     const url = `${API_BASE_URL}${endpoint}`;
     console.log(url);
@@ -70,6 +70,7 @@ async function makeApiRequest_save(endpoint, data) {
 // Function to make API requests for site search
 async function makeApiRequest(endpoint, data) {
     const url = `${API_BASE_URL}${endpoint}`;
+    console.log(url);
     try {
         const response = await fetch(url, {
             method: 'POST',
@@ -259,6 +260,12 @@ function getSiteSearchValues() {
     // Get all checked website checkboxes
     const websiteCheckboxes = document.querySelectorAll('input[name="websites"]:checked');
     const websites = Array.from(websiteCheckboxes).map(checkbox => checkbox.value);
+    console.log(Number(document.getElementById('site-day-from').value) || n_day);
+    console.log(Number(document.getElementById('site-month-from').value) || n_month);
+    console.log(Number(document.getElementById('site-year-from').value) || n_year);
+    console.log(Number(document.getElementById('site-day-to').value) || n_day);
+    console.log(Number(document.getElementById('site-month-to').value) || n_month);
+    console.log(Number(document.getElementById('site-year-to').value) || n_day);
     return {
         websites: websites || ["0"],
         searchTerms: ((_a = document.getElementById('search')) === null || _a === void 0 ? void 0 : _a.value) || "MSI Gaming",
@@ -286,12 +293,12 @@ function getDatabaseSearchValues() {
         websites: websites || ["Tom's Hardware"],
         searchTerms: ((_a = document.getElementById('database-search')) === null || _a === void 0 ? void 0 : _a.value) || "",
         limit: Number((_b = document.getElementById('database-amount')) === null || _b === void 0 ? void 0 : _b.value) || 0,
-        day_from: Number((_c = document.getElementById('database-day-from')) === null || _c === void 0 ? void 0 : _c.value) || n_day,
-        month_from: Number((_d = document.getElementById('database-month-from')) === null || _d === void 0 ? void 0 : _d.value) || n_month,
-        year_from: Number((_e = document.getElementById('database-year-from')) === null || _e === void 0 ? void 0 : _e.value) || n_year,
-        day_to: Number((_f = document.getElementById('database-day-to')) === null || _f === void 0 ? void 0 : _f.value) || n_day,
-        month_to: Number((_g = document.getElementById('database-month-to')) === null || _g === void 0 ? void 0 : _g.value) || n_month,
-        year_to: Number((_h = document.getElementById('database-year-to')) === null || _h === void 0 ? void 0 : _h.value) || n_year,
+        day_from: Number((_c = document.getElementById('database-day-from')) === null || _c === void 0 ? void 0 : _c.value) || 0,
+        month_from: Number((_d = document.getElementById('database-month-from')) === null || _d === void 0 ? void 0 : _d.value) || 0,
+        year_from: Number((_e = document.getElementById('database-year-from')) === null || _e === void 0 ? void 0 : _e.value) || 0,
+        day_to: Number((_f = document.getElementById('database-day-to')) === null || _f === void 0 ? void 0 : _f.value) || 0,
+        month_to: Number((_g = document.getElementById('database-month-to')) === null || _g === void 0 ? void 0 : _g.value) || 0,
+        year_to: Number((_h = document.getElementById('database-year-to')) === null || _h === void 0 ? void 0 : _h.value) || 0,
         keywords: ((_j = document.getElementById('database-keywords')) === null || _j === void 0 ? void 0 : _j.value) || "",
         urls: ((_k = document.getElementById('database-urls')) === null || _k === void 0 ? void 0 : _k.value) || ""
     };

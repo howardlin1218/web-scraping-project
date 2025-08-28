@@ -54,7 +54,7 @@ def get_all_saved():
         print(f"error: {e}")
         return 500
     
-def search_for_articles(websites, search_terms, limit, keywords, urls, day_from, month_from, year_from, day_to, month_to, year_to): 
+def search_for_articles(websites, search_terms, limit, keywords, urls, start_date, end_date): 
     try: 
         query = supabase.table("articles").select("content, url")
 
@@ -73,6 +73,9 @@ def search_for_articles(websites, search_terms, limit, keywords, urls, day_from,
         if keywords: 
             for keyword in keywords: 
                 query = query.or_(f"content.ilike.%{keyword}%")
+
+        if start_date != 0 and end_date != 0:
+            query = query.gte("published_date", start_date).lte("published_date", end_date)
 
         if limit != 0: 
             query = query.limit(limit)
