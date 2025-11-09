@@ -32,7 +32,7 @@ def get_recent_10_articles():
         response = (
             supabase.table("articles")
             .select("content, url")
-            .order("created_at", desc=False)
+            .order("created_at", desc=True)
             .limit(10)
             .execute()
         )
