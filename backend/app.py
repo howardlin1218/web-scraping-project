@@ -14,15 +14,15 @@ d_month = now.month
 d_day = now.day
 # Import your existing modules
 try:
-    from automate_email import construct_message, json_dict, send_email, email_dict # Import your email automation
-    from test import search_all_sites  # Import your scraping logic
+    from methods import construct_message, json_dict, send_email, email_dict # Import your email automation
+    from search import search_all_sites  # Import your scraping logic
     from database import insert_to_supabase, get_recent_10_articles, populate_fields, search_for_articles, get_all_saved
 except ImportError:
     print("Warning: Could not import some modules. Make sure database.py and automate_email.py exist.")
 
 app = Flask(__name__)
-# CORS(app, origins=['https://article-summarizer-4lcw.onrender.com'], supports_credentials=True)  # Enable CORS for frontend communication 
-CORS(app)
+CORS(app, origins=['https://article-summarizer-4lcw.onrender.com'], supports_credentials=True)  # Enable CORS for frontend communication 
+# CORS(app, origins=['http://127.0.0.1:5500'], supports_credentials=True)
 @app.route('/api/email-to-user', methods=['POST'])
 def email_to_user():
     try:

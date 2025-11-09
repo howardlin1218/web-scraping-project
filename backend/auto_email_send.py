@@ -1,5 +1,5 @@
-from automate_email import send_email, construct_message, email_dict
-from test import search_all_sites
+from methods import send_email, construct_message, email_dict
+from search import search_all_sites
 
 from datetime import datetime
 
@@ -8,8 +8,8 @@ year = now.year
 month = now.month
 day = now.day
 
-email_list = ['howlin1218@gmail.com', 'howardlin@msi.com']
-email_address = "howlin1218@gmail.com"
+email_list = []
+email_address = ""
 searches = ['gaming desktop', 'pro desktop']
 a_limit = 1
 w_limit = 2500

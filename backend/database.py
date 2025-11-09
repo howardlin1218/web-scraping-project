@@ -1,7 +1,7 @@
 from supabase import create_client, Client
 import os 
 from dotenv import load_dotenv
-from automate_email import json_dict, email_dict
+from methods import json_dict, email_dict
 
 load_dotenv()
 
